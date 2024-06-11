@@ -18,8 +18,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} dark:dark bg-secondary dark:bg-secondary-dark`}>
-      {pathname !== '/control'  && <ToolsBar />}
-        <section className="VStack w-full items-center">
+      {pathname !== '/console' && !pathname.startsWith('/project') && <ToolsBar />}
+      <section className="VStack w-full items-center">
           {children}
         </section>
       </body>
