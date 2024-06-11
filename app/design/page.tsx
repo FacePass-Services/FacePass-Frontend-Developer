@@ -5,7 +5,7 @@ import { GoChevronRight } from "react-icons/go";
 
 export default function App() {
   return (
-    <main className="flex min-h-screen flex-col justify-between w-10/12  lg:w-8/12 ">
+    <main className="flex min-h-screen flex-col justify-between w-10/12  lg:w-8/12 pb-10">
       <section className="gap-5  VStack   w-full h-full mt-12">
         <p className="text-3xl font-medium ">Human Interface Guildelines</p>
         <p className="opacity-70 w-3/4">
