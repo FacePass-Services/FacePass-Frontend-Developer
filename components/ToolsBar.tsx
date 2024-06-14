@@ -59,7 +59,7 @@ export default function App() {
         </Link>
         <NavbarContent className="hidden sm:flex gap-7 HStack items-center justify-center">
           <NavbarItem>
-            <Link color="foreground" href="/documwntation">
+            <Link color="foreground" href="/documentation">
               Documentation
             </Link>
           </NavbarItem>
