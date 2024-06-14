@@ -283,7 +283,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
           });
           console.log("Role upgraded to 'dev_pro'");
         }
-        window.location.href = "/developer/workspace/project";
+        window.location.href = "/";
       } catch (error) {
         console.error("Error updating role:", error);
       }
@@ -313,9 +313,9 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         setToken(response);
         setSignedIn(true);
         setLoginSuccess(true); // Set login success to true
-        setTimeout(() => {
-          window.location.href = "/"; // Redirect to home page after 3 seconds
-        }, 3000);
+        // setTimeout(() => {
+        //   window.location.href = "/"; 
+        // }, 1500);
       } catch (error) {
         console.error("Login error:", error);
       }
