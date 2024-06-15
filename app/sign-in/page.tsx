@@ -5,7 +5,7 @@ import SignInForm from "@/components/SignInForm";
 
 const App = () => {
   return (
-    <section className="VStack lg:w-full h-full text-center items-center pt-12 md:pt-0 w-10/12 md:justify-center gap-5 min-h-screen">
+    <section className="VStack  h-full text-center items-center pt-12 md:pt-0 w-10/12 lg:w-4/12 md:w-7/12 md:justify-center gap-5 min-h-screen">
       <p className="font-semibold text-3xl">
         {" "}
         Sign In to FacePass Developer Account

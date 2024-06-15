@@ -219,7 +219,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
 
   useEffect(() => {
     if (signedIn && role !== "user") {
-      window.location.href = "/developer";
+      window.location.href = "/";
     }
   }, [signedIn, role]);
 
@@ -267,32 +267,42 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
   const handleSignInAsDeveloper = async () => {
     if (checkedStates.sub_a || checkedStates.sub_b || checkedStates.sub_c) {
       try {
+        let response;
         if (checkedStates.sub_a) {
-          await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_lite", {
+          response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_lite", {
             email,
           });
           console.log("Role upgraded to 'dev_lite'");
         } else if (checkedStates.sub_b) {
-          await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_plus", {
+          response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_plus", {
             email,
           });
           console.log("Role upgraded to 'dev_plus'");
         } else if (checkedStates.sub_c) {
-          await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_pro", {
+          response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_pro", {
             email,
           });
           console.log("Role upgraded to 'dev_pro'");
         }
-        window.location.href = "/";
+  
+        if (response && response.data) {
+          const data = response.data;
+  
+          // Assuming the response data contains the new token and user info
+          setToken(data);
+  
+          window.location.href = "/developer/workspace/project";
+        } else {
+          console.error("No response data received");
+        }
       } catch (error) {
         console.error("Error updating role:", error);
       }
     } else {
-      alert(
-        "Please check at least one of the checkboxes to sign in as a developer."
-      );
+      alert("Please check at least one of the checkboxes to sign in as a developer.");
     }
   };
+  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
