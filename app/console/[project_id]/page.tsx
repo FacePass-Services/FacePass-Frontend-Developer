@@ -49,6 +49,48 @@ import { FaCircleUser } from "react-icons/fa6";
 import { IoIosInformationCircle } from "react-icons/io";
 import { IoFilterOutline } from "react-icons/io5";
 import { User } from "@nextui-org/react";
+import useToken from "@/hooks/useToken";
+
+const users = [
+  // Example user data
+  {
+    id: 1,
+    first_name: "John",
+    last_name: "Doe",
+    email: "john.doe@example.com",
+    gender: "male",
+    date_of_birth: "1990-01-01",
+    phone_number: "+1234567890",
+    role: "admin",
+    // status: "active",
+    team: "Team A"
+  },
+  {
+    id: 2,
+    first_name: "Jane",
+    last_name: "Smith",
+    email: "jane.smith@example.com",
+    gender: "female",
+    date_of_birth: "1995-05-15",
+    phone_number: "+9876543210",
+    role: "user",
+    // status: "inactive",
+    team: "Team B"
+  }
+
+];
+
+const columns = [
+  { name: "First Name", uid: "first_name" },
+  { name: "Last Name", uid: "last_name" },
+  { name: "Email", uid: "email" },
+  { name: "Gender", uid: "gender" },
+  { name: "Date of Birth", uid: "date_of_birth" },
+  { name: "Phone Number", uid: "phone_number" },
+  { name: "Role", uid: "role" },
+  // { name: "Status", uid: "status" },
+  { name: "Actions", uid: "actions" }
+];
 
 
 
@@ -58,22 +100,9 @@ export default function Home({params}: any) {
   const [showFilesContent, setShowFilesContent] = useState(false); // State to toggle visibility of Files content
   const [users, setUsers] = useState([]);
   const project_id = params.project_id.toString()
-
-  console.log(project_id);
-
-  const columns = [
-    { name: "First Name", uid: "first_name" },
-    { name: "Last Name", uid: "last_name" },
-    { name: "Email", uid: "email" },
-    { name: "Gender", uid: "gender" },
-    { name: "Date of Birth", uid: "date_of_birth" },
-    { name: "Phone Number", uid: "phone_number" },
-    { name: "Role", uid: "role" },
-    { name: "Status", uid: "status" },
-    { name: "Actions", uid: "actions" }
-  ];
-  
-
+  const {username} = useToken();
+  const [isClient, setIsClient] = useState(false)
+ 
   useEffect(() => {
     if (!project_id) return;
 
@@ -81,7 +110,7 @@ export default function Home({params}: any) {
       try {
         const res = await axios.get(`http://localhost:5000/project/get_user_list?project_id=${project_id}`);
         if (res.status === 200) {
-          setUsers(res.data);
+          setUsers(res.data.users);
         } else {
           console.error(`Error: Received status code ${res.status}`);
         }
@@ -89,12 +118,9 @@ export default function Home({params}: any) {
         console.error('Fetching Error:', e.response ? e.response.data : e.message);
       }
     };
-
+    setIsClient(true)
     fetchData();
   }, [project_id]);
-
-  console.log(users);
-  
   
   const handleItemClick = (item: any) => {
     if (item === "file") {
@@ -112,7 +138,7 @@ export default function Home({params}: any) {
   
   //table
 
-  const renderCell = React.useCallback((user: any, columnKey: any) => {
+  const renderCell = React.useCallback((user, columnKey) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
@@ -120,29 +146,28 @@ export default function Home({params}: any) {
         return (
           <div className="flex flex-col">
             <p className="text-bold text-sm capitalize">{cellValue}</p>
+            {/* Assuming user has a team property */}
             <p className="text-bold text-sm capitalize text-default-400">
-              {user.first_name} 
             </p>
           </div>
         );
-      case "status":
-        return (
-          <Chip
-            className="capitalize"
-            color={statusColorMap[user.status]}
-            size="sm"
-            variant="flat"
-          >
-            {cellValue}
-          </Chip>
-        );
+      // case "status":
+      //   return (
+      //     <Chip
+      //       className="capitalize"
+      //       color={statusColorMap[0]}
+      //       size="sm"
+      //       variant="flat"
+      //     >
+      //       {cellValue}
+      //     </Chip>
+      //   );
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
-        
             <Tooltip color="danger" content="Delete user">
               <span className="text-lg text-danger cursor-pointer active:opacity-50">
-                {/* <DeleteIcon /> */}
+                {/* Example using IoTrashBinSharp icon */}
                 <IoTrashBinSharp />
               </span>
             </Tooltip>
@@ -377,13 +402,15 @@ export default function Home({params}: any) {
                 </p>
                 <p className="text-md opacity-75">Monday, 11 November</p>
               </div> */}
-              <User
-                name="Dusit Thonvisiet"
+              {isClient &&
+                <User
+                name={username}
                 description="Software Engineer"
                 avatarProps={{
                   src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
                 }}
-              />
+                />
+              }
             </div>
           </div>
           {selectedItem && (
@@ -463,7 +490,7 @@ export default function Home({params}: any) {
               {selectedItem === "products" && <p>Products Content</p>}
               {selectedItem === "customers" && (
                 <section>
-                  <Table aria-label="Example table with custom cells">
+                  <Table aria-label="User Table">
                     <TableHeader columns={columns}>
                       {(column) => (
                         <TableColumn
