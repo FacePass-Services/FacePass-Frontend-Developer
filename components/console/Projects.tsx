@@ -9,6 +9,7 @@ import {
 import { SlOptionsVertical } from "react-icons/sl";
 import Link from "next/link";
 import useToken from "@/hooks/useToken";
+import { useRouter } from "next/navigation";
 
 type Project = {
   id: string;
@@ -35,6 +36,16 @@ const Projects = () => {
 
     fetchProjects();
   }, [userId]);
+
+  const LinkProject = (project: Project) => {
+    return (
+      <Link href={`/console/${project.id}`}>
+        <div className="VStack p-4 pb-5 h-full w-full justify-end">
+          <p className="font-medium text-xl">{project.title}</p>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <>
@@ -68,11 +79,9 @@ const Projects = () => {
               </DropdownMenu>
             </Dropdown>
           </div>
-          <Link href={`/developer/console/project/${project.id}`}>
-            <div className="VStack p-4 pb-5 h-full w-full justify-end">
-              <p className="font-medium text-xl">{project.title}</p>
-            </div>
-          </Link>
+
+          {LinkProject(project)}
+
         </div>
       ))}
     </>
