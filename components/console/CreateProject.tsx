@@ -7,6 +7,7 @@ const CreateProject: React.FC = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const { userId } = useToken(); // Get userId using the useToken hook
+  const [project_id, setProjectId] = useState("");
 
   const handleCreateProject = async () => {
     try {
@@ -14,18 +15,18 @@ const CreateProject: React.FC = () => {
       console.log("Title:", title);
       console.log("Description:", description);
       console.log("User ID:", userId);
-  
+      
       // Make a POST request to create a new project
       const response = await axios.post("http://127.0.0.1:5000/project/create", {
         title: title,
         description: description,
         created_user_id: userId, // Use the userId from the useToken hook
       });
-      window.location.href = "/developer/console/project";
-
+      
       // Log the response for debugging
       console.log(response.data);
-  
+      setProjectId(response.data.project_id);
+      window.location.href = `/console/${project_id}`; // Redirect to the new project page
       // Handle success (e.g., show a success message to the user)
     } catch (error) {
       // Log the error for debugging

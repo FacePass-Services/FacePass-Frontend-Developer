@@ -87,7 +87,7 @@ const columns = [
   { name: "Gender", uid: "gender" },
   { name: "Date of Birth", uid: "date_of_birth" },
   { name: "Phone Number", uid: "phone_number" },
-  { name: "Role", uid: "role" },
+  // { name: "Role", uid: "role" },
   // { name: "Status", uid: "status" },
   { name: "Actions", uid: "actions" }
 ];
