@@ -18,7 +18,7 @@ export default function App() {
   };
 
   return (
-    <main className="VStack w-screen min-h-screen items-center">
+    <main className="VStack w-screen min-h-screen items-center pb-10">
       <section className="VStack w-full dark:bg-primary-dark bg-primary items-center">
         <div className="w-9/12 pt-28 VStack gap-3 pb-20">
           <p className="text-2xl font-medium">Welcome to FacePass!</p>
@@ -30,12 +30,12 @@ export default function App() {
             <Button
               onClick={handleButtonClick}
               radius="full"
-              className="dark:bg-primary-dark bg-primary dark:bg-dark-secondary dark:text-primary-dark text-primary pl-7 pr-7 pt-3 pb-3"
+              className=" bg-primary-dark dark:bg-primary dark:text-primary-dark text-primary pl-7 pr-7 pt-3 pb-3"
             >
               Create a project
             </Button>
 
-            <Link href="/developer/documentation" className="HStack gap-1">
+            <Link href="/developer/documentation" className="HStack gap-1 text-primary-dark">
               <p>Documentation</p>
               <GoArrowUpRight className="text-xs" />
             </Link>
@@ -43,8 +43,8 @@ export default function App() {
         </div>
       </section>
       <Waves />
-      <section className="w-full items-center pl-10 pr-10 h-full overflow-y-auto">
-        <div className=" grid grid-cols-4 md: lg:grid-cols-5 gap-10 items-center">
+      <section className="w-full items-center pl-10 mt-10 pr-10 h-full overflow-y-auto">
+        <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 items-center">
           <Projects />
         </div>
       </section>

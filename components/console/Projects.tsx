@@ -52,33 +52,9 @@ const Projects = () => {
       {projects.map((project) => (
         <div
           key={project.id}
-          className="bg-primary dark:bg-primary-dark w-[250px] h-[250px] p-5 hover:border-5 hover:border-black hover:border-opacity-10 rounded-lg shadow-sm aspect-square"
+          className="bg-primary dark:bg-primary-dark w-[250px] h-[250px] p-5 hover:bg-opacity-25 rounded-lg shadow-sm aspect-square"
         >
-          <div className="HStack w-full justify-end">
-            <Dropdown>
-              <DropdownTrigger>
-                <SlOptionsVertical />
-              </DropdownTrigger>
-              <DropdownMenu aria-label="Static Actions">
-                <DropdownItem key="open">Open</DropdownItem>
-                <DropdownItem key="download" showDivider>
-                  Download
-                </DropdownItem>
-                <DropdownItem key="moveToBin" showDivider>
-                  Move to Bin
-                </DropdownItem>
-                <DropdownItem key="getInfo">Get info</DropdownItem>
-                <DropdownItem key="rename">Rename</DropdownItem>
-                <DropdownItem key="duplicate" showDivider>
-                  Duplicate
-                </DropdownItem>
-                <DropdownItem key="collaboration" showDivider>
-                  Collaboration
-                </DropdownItem>
-                <DropdownItem key="settings">Settings</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
+         
 
           {LinkProject(project)}
 

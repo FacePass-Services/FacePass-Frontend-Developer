@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useSearchParams,useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Input, Button, Checkbox } from "@nextui-org/react";
@@ -18,6 +18,7 @@ import { IoMdSettings } from "react-icons/io";
 // import { columns, users } from "@/database/data";
 import { MdEdit } from "react-icons/md";
 import { IoTrashBinSharp } from "react-icons/io5";
+import ProjectSettings from "@/components/project/ProjectSetting";
 
 // dashboard
 import {
@@ -36,7 +37,7 @@ const statusColorMap = {
   active: "success",
   deactive: "danger",
 };
-
+import ProjectBar from "@/components/project/ToolsBar";
 import {
   Dropdown,
   DropdownTrigger,
@@ -63,7 +64,7 @@ const users = [
     phone_number: "+1234567890",
     role: "admin",
     // status: "active",
-    team: "Team A"
+    team: "Team A",
   },
   {
     id: 2,
@@ -75,9 +76,8 @@ const users = [
     phone_number: "+9876543210",
     role: "user",
     // status: "inactive",
-    team: "Team B"
-  }
-
+    team: "Team B",
+  },
 ];
 
 const columns = [
@@ -89,39 +89,52 @@ const columns = [
   { name: "Phone Number", uid: "phone_number" },
   // { name: "Role", uid: "role" },
   // { name: "Status", uid: "status" },
-  { name: "Actions", uid: "actions" }
+  { name: "Actions", uid: "actions" },
 ];
 
-
-
-export default function Home({params}: any) {
+export default function Home({ params }: any) {
   const router = useRouter();
-  const [selectedItem, setSelectedItem] = useState("dashboard");
+  const [selectedItem, setSelectedItem] = useState("customers");
   const [showFilesContent, setShowFilesContent] = useState(false); // State to toggle visibility of Files content
   const [users, setUsers] = useState([]);
-  const project_id = params.project_id.toString()
-  const {username} = useToken();
-  const [isClient, setIsClient] = useState(false)
- 
+  const [projectEntire, setProjectEntire] = useState([]);
+
+  const project_id = params.project_id.toString();
+  const { username } = useToken();
+  const [isClient, setIsClient] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowModal(true);
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
   useEffect(() => {
     if (!project_id) return;
 
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/project/get_user_list?project_id=${project_id}`);
+        const res = await axios.get(
+          `http://127.0.0.1:5000/project/get_user_list?project_id=${project_id}`
+        );
         if (res.status === 200) {
-          setUsers(res.data.users);
+          setUsers(res.data.folder.users);
+          setProjectEntire(res.data.folder);
         } else {
           console.error(`Error: Received status code ${res.status}`);
         }
-      } catch (e:any) {
-        console.error('Fetching Error:', e.response ? e.response.data : e.message);
+      } catch (e: any) {
+        console.error(
+          "Fetching Error:",
+          e.response ? e.response.data : e.message
+        );
       }
     };
-    setIsClient(true)
+    setIsClient(true);
     fetchData();
   }, [project_id]);
-  
+
   const handleItemClick = (item: any) => {
     if (item === "file") {
       // Toggle visibility of Files content
@@ -135,10 +148,9 @@ export default function Home({params}: any) {
     }
   };
 
-  
   //table
 
-  const renderCell = React.useCallback((user, columnKey) => {
+  const renderCell = React.useCallback((user: any, columnKey: any) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
@@ -147,8 +159,7 @@ export default function Home({params}: any) {
           <div className="flex flex-col">
             <p className="text-bold text-sm capitalize">{cellValue}</p>
             {/* Assuming user has a team property */}
-            <p className="text-bold text-sm capitalize text-default-400">
-            </p>
+            <p className="text-bold text-sm capitalize text-default-400"></p>
           </div>
         );
       // case "status":
@@ -178,16 +189,16 @@ export default function Home({params}: any) {
     }
   }, []);
 
-
   return (
     <main className="VStack w-screen min-h-screen items-center">
+      <ProjectBar projectEntire={projectEntire} />
       <div className="HStack w-full  h-full  pl-7 pr-7 ">
         <section
           id="Toolbar"
-          className="VStack w-2/12 h-full justify-between max-w-[300px] pl-2 pr-2"
+          className="VStack min-h-[90vh] w-2/12 h-full justify-between max-w-[300px] pl-2 pr-2"
         >
           <div className="VStack w-full">
-            <Dropdown>
+            {/* <Dropdown>
               <DropdownTrigger>
                 <div className="HStack cursor-pointer justify-between items-center h-20">
                   <div className="HStack gap-3 items-center">
@@ -242,13 +253,13 @@ export default function Home({params}: any) {
                   </DropdownItem>
                 </DropdownSection>
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
 
-            <div className="w-full h-1 border-t-1 mb-3 border-opacity-25 border-dashed border-black dark:border-white dark:border-opacity-25"></div>
+            <div className="w-full h-1 mb-3 "></div>
             <section className="VStack gap-7 text-[12px]">
               <ul className="VStack gap-2  ">
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "dashboard"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -256,7 +267,7 @@ export default function Home({params}: any) {
                   onClick={() => handleItemClick("dashboard")}
                 >
                   <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
+                    <TiThSmall className="text-xl" />
 
                     <p>Dashboard</p>
                   </div>
@@ -265,7 +276,7 @@ export default function Home({params}: any) {
               </ul>
               <ul className="VStack gap-2 ">
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "products"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -279,7 +290,7 @@ export default function Home({params}: any) {
                   <p></p>
                 </li>
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "customers"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -287,13 +298,13 @@ export default function Home({params}: any) {
                   onClick={() => handleItemClick("customers")}
                 >
                   <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
-                    <p>Customers</p>
+                    <FaCircleUser className="text-xl" />
+                    <p>Users</p>
                   </div>
                   <p></p>
                 </li>
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "orders"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -307,7 +318,7 @@ export default function Home({params}: any) {
                   <p>1</p>
                 </li>
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "secret"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -337,7 +348,7 @@ export default function Home({params}: any) {
                 {showFilesContent && (
                   <ul className={`VStack gap-2 w-full`}>
                     <li
-                      className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                      className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                         selectedItem === "a"
                           ? "bg-white dark:bg-black font-semibold  shadow-sm"
                           : ""
@@ -351,7 +362,7 @@ export default function Home({params}: any) {
                       <p></p>
                     </li>
                     <li
-                      className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                      className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                         selectedItem === "b"
                           ? "bg-white dark:bg-black font-semibold  shadow-sm"
                           : ""
@@ -373,7 +384,7 @@ export default function Home({params}: any) {
           <div className="VStack gap-7 text-[12px]">
             <ul className={`VStack gap-2 w-full`}>
               <li
-                className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                   selectedItem === "setting"
                     ? "bg-white dark:bg-black font-semibold  shadow-sm"
                     : ""
@@ -391,28 +402,7 @@ export default function Home({params}: any) {
             </ul>{" "}
           </div>
         </section>
-        <section id="Stage" className="pl-5 w-10/12 VStack ">
-          <div className=" h-20 w-full">
-            <div className="HStack h-full gap-2 items-center">
-              {/* <FaCircleUser className="w-12 h-12 aspect-square" />
-
-              <div className="VStack justify-start items-start">
-                <p className="gap-2 font-semibold text-lg">
-                  Hi there, <span className="font-bold"> Kong</span>
-                </p>
-                <p className="text-md opacity-75">Monday, 11 November</p>
-              </div> */}
-              {isClient &&
-                <User
-                name={username}
-                description="Software Engineer"
-                avatarProps={{
-                  src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                }}
-                />
-              }
-            </div>
-          </div>
+        <section id="Stage" className="pl-5 mt-5 w-10/12 VStack ">
           {selectedItem && (
             <div>
               {/* Render content based on the selected item */}
@@ -489,35 +479,90 @@ export default function Home({params}: any) {
               )}
               {selectedItem === "products" && <p>Products Content</p>}
               {selectedItem === "customers" && (
-                <section>
-                  <Table aria-label="User Table">
-                    <TableHeader columns={columns}>
-                      {(column) => (
-                        <TableColumn
-                          key={column.uid}
-                          align={column.uid === "actions" ? "center" : "start"}
+                <>
+                  <div className="w-full h-32">
+                    <div className="HStack w-full h-full justify-between">
+                      <div className="VStack gap-4">
+                        <h2 className="text-3xl font-semibold">Users</h2>
+                        <p className="text-lg">
+                          Customers lorem ipsum dolor sit amet, consectetur
+                          adipiscing elit, sed do eiusmod tempor incididunt ut
+                          labore et dolore magna aliqua.
+                        </p>
+                      </div>
+                      <div>
+                        <Button>New Customers</Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <section className="VSatck w-full">
+                    <div className="w-full HStack gap-5 items-center justify-end mb-5">
+                      <Input
+                        type="text"
+                        variant="bordered"
+                        size="sm"
+                        label="Search"
+                      />
+
+                      {/* <Dropdown>
+                        <DropdownTrigger> */}
+                          <Button>
+                            <IoFilterOutline />
+                            <p>Filters</p>
+                          </Button>{" "}
+                        {/* </DropdownTrigger>
+                        <DropdownMenu
+                          aria-label="Action event example"
                         >
-                          {column.name}
-                        </TableColumn>
-                      )}
-                    </TableHeader>
-                    <TableBody items={users}>
-                      {(item) => (
-                        <TableRow key={item.id}>
-                          {(columnKey) => (
-                            <TableCell>{renderCell(item, columnKey)}</TableCell>
-                          )}
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </section>
+                          <DropdownItem key="new212">New file</DropdownItem>
+                          <DropdownItem key="co321py">Copy link</DropdownItem>
+                          <DropdownItem key="ed342it">Edit file</DropdownItem>
+                          <DropdownItem
+                            key="del123123ete"
+                            className="text-danger"
+                            color="danger"
+                          >
+                            Delete file
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </Dropdown> */}
+                    </div>
+                    <Table className="" aria-label="User Table">
+                      <TableHeader columns={columns}>
+                        {(column) => (
+                          <TableColumn
+                            key={column.uid}
+                            align={
+                              column.uid === "actions" ? "center" : "start"
+                            }
+                          >
+                            {column.name}
+                          </TableColumn>
+                        )}
+                      </TableHeader>
+                      <TableBody items={users}>
+                        {(item) => (
+                          <TableRow key={item.id}>
+                            {(columnKey) => (
+                              <TableCell>
+                                {renderCell(item, columnKey)}
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </section>
+                </>
               )}
               {selectedItem === "orders" && <p>Orders Content</p>}
               {selectedItem === "secret" && <p>Secret Content</p>}
               {selectedItem === "a" && <p>a Content</p>}
               {selectedItem === "b" && <p>b Content</p>}
-              {selectedItem === "setting" && <p>setting</p>}
+              {selectedItem === "setting" && (
+                <ProjectSettings project={projectEntire} />
+              )}
             </div>
           )}
         </section>

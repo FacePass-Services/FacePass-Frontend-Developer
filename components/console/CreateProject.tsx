@@ -27,7 +27,6 @@ const CreateProject: React.FC = () => {
       console.log(response.data);
       setProjectId(response.data.project_id);
       window.location.href = `/console/${project_id}`; // Redirect to the new project page
-      // Handle success (e.g., show a success message to the user)
     } catch (error) {
       // Log the error for debugging
       console.error("Error creating project:", error);

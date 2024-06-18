@@ -55,8 +55,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       label: "Lite",
       content: (
         <>
-          <div className="VStack gap-5">
-            <p>
+          <div className="VStack gap-5 w-full">
+          <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -110,7 +110,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       label: "Plus",
       content: (
         <>
-          <div className="VStack gap-5">
+          <div className="VStack gap-5 w-full">
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
@@ -165,8 +165,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       label: "Pro",
       content: (
         <>
-          <div className="VStack gap-5">
-            <p>
+          <div className="VStack gap-5 w-full">
+          <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -373,7 +373,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         role === "user" &&
         isDeveloperPage && (
           <>
-            <div className="VStack w-9/12 items-center">
+            <div className="VStack w-full items-center">
               <Tabs aria-label="Dynamic tabs" items={tabs}>
                 {(item) => (
                   <Tab key={item.id} title={item.label}>

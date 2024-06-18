@@ -21,7 +21,13 @@ export default function RootLayout({
       <body
         className={`${inter.className} dark:dark bg-secondary dark:bg-secondary-dark`}
       >
-        {pathname == "/console" ? <ConsoleBar /> : <ToolsBar />}
+        {pathname === "/console" ? (
+          <ConsoleBar />
+        ) : pathname.startsWith("/console/") ? (
+          <div></div>
+        ) : (
+          <ToolsBar />
+        )}
         {/* {pathname !== '/console' && !pathname.startsWith('/project') && <ToolsBar />} */}
         <section className="VStack w-full items-center">{children}</section>
       </body>

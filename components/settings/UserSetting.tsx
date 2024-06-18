@@ -5,6 +5,7 @@ import { CiEdit } from "react-icons/ci";
 import { MdDownloadDone } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
 import useToken from "@/hooks/useToken";
+import { Chip } from "@nextui-org/react";
 
 const UserSetting = () => {
   const {
@@ -35,7 +36,7 @@ const UserSetting = () => {
     setEditedPhone(phoneNumber);
     setEditedEmail(email);
   }, [firstName, lastName, dateOfBirth, gender, phoneNumber, email]);
-console.log(role);
+  console.log(role);
 
   const profileImg =
     "https://static.vecteezy.com/system/resources/thumbnails/018/742/015/small_2x/minimal-profile-account-symbol-user-interface-theme-3d-icon-rendering-illustration-isolated-in-transparent-background-png.png";
@@ -97,10 +98,52 @@ console.log(role);
         {role === "user" && (
           <p className="text-base opacity-75">FacePass Account</p>
         )}
-  {(role === "dev_plus" || role === "dev_pro" || role === "dev_lite") && (
-  <p className="text-base opacity-75">Developer Account</p>
-)}
+        {(role === "dev_plus" || role === "dev_pro" || role === "dev_lite") && (
+          <p className="text-base opacity-75">Developer Account</p>
+        )}
 
+        {role === "dev_lite" && (
+          <>
+          <Chip
+              variant="shadow"
+              classNames={{
+                base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                content: "drop-shadow shadow-black text-white",
+              }}
+            >
+              {" "}
+              Lite
+            </Chip>
+          </>
+        )}
+        {role === "dev_plus" && (
+          <>
+          <Chip
+              variant="shadow"
+              classNames={{
+                base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                content: "drop-shadow shadow-black text-white",
+              }}
+            >
+              {" "}
+              Plus
+            </Chip>
+          </>
+        )}
+        {role === "dev_pro" && (
+          <>
+            <Chip
+              variant="shadow"
+              classNames={{
+                base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                content: "drop-shadow shadow-black text-white",
+              }}
+            >
+              {" "}
+              Pro
+            </Chip>
+          </>
+        )}
       </div>
 
       {/* Input fields for editing user information */}
@@ -244,11 +287,9 @@ console.log(role);
                     <p>Phone Number</p>
                     <div className="gap-1 HStack opacity-75 items-center">
                       {isEditing ? (
-                          <div className="HStack opacity-25 items-center gap-1">
+                        <div className="HStack opacity-25 items-center gap-1">
                           {" "}
-                          <p className="">
-                            {phoneNumber}
-                          </p>
+                          <p className="">{phoneNumber}</p>
                           <IoLockClosed />
                         </div>
                       ) : (
@@ -265,13 +306,11 @@ console.log(role);
                     <p>Email Address</p>
                     <div className="gap-1 HStack opacity-75 items-center">
                       {isEditing ? (
-                           <div className="HStack opacity-25 items-center gap-1">
-                           {" "}
-                           <p className="">
-                             {email}
-                           </p>
-                           <IoLockClosed />
-                         </div>
+                        <div className="HStack opacity-25 items-center gap-1">
+                          {" "}
+                          <p className="">{email}</p>
+                          <IoLockClosed />
+                        </div>
                       ) : (
                         <>
                           <p>{email}</p>
@@ -283,9 +322,10 @@ console.log(role);
                 </li>
               </ul>
               {isEditing && (
- <p className="pt-2 opacity-25 text-xs pl-2">
- According to TF3949 Information cannot be change in 1.0 Beta 1b
-</p>
+                <p className="pt-2 opacity-25 text-xs pl-2">
+                  According to TF3949 Information cannot be change in 1.0 Beta
+                  1b
+                </p>
               )}
             </div>
           </section>
