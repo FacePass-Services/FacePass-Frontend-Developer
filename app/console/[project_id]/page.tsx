@@ -1,22 +1,14 @@
 "use client";
 import Image from "next/image";
-import { useSearchParams,useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Input, Button, Checkbox } from "@nextui-org/react";
-import { TiThSmall } from "react-icons/ti";
-import { FaGear } from "react-icons/fa6";
-import { GoChevronDown } from "react-icons/go";
-import { IoLogoFlickr } from "react-icons/io";
-import { LuChevronsUpDown } from "react-icons/lu";
 import { BsChevronExpand } from "react-icons/bs";
-import { IoCodeWorkingSharp } from "react-icons/io5";
 import { MdWork } from "react-icons/md";
 import { BsChevronDown } from "react-icons/bs";
 import { BsChevronUp } from "react-icons/bs";
 import { IoMdSettings } from "react-icons/io";
-// import { columns, users } from "@/database/data";
-import { MdEdit } from "react-icons/md";
 import { IoTrashBinSharp } from "react-icons/io5";
 
 // dashboard

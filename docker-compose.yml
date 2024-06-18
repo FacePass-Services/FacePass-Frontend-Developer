@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+    frontend:
+        image: ${DOCKER_HUB_USERNAME}/facepass-frontend:latest
+        restart: always
+        ports:
+            - 8866:80
