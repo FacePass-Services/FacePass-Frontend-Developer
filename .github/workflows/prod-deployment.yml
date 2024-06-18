@@ -27,7 +27,7 @@ jobs:
               with:
                   push: true
                   tags: ${{ secrets.DOCKER_HUB_USERNAME }}/facepass-frontend:latest
-                  context: ./smartbin
+                  context: ./facepass-frontend
 
     deploy-to-aws:
         needs: build
