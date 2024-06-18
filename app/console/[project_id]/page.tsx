@@ -103,6 +103,8 @@ export default function Home({params}: any) {
   const {username} = useToken();
   const [isClient, setIsClient] = useState(false)
  
+  console.log(params.project_id);
+  
   useEffect(() => {
     if (!project_id) return;
 
@@ -110,7 +112,7 @@ export default function Home({params}: any) {
       try {
         const res = await axios.get(`http://localhost:5000/project/get_user_list?project_id=${project_id}`);
         if (res.status === 200) {
-          setUsers(res.data.users);
+          setUsers(res.data.folder.users);
         } else {
           console.error(`Error: Received status code ${res.status}`);
         }
