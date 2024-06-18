@@ -131,6 +131,7 @@ function useToken() {
     setDateOfBirth(null);
     setUserId(null);
     setRole(null);
+    window.location.href = '/';
   };
 
   useEffect(() => {
