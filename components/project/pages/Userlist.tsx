@@ -1,8 +1,17 @@
-import React from "react";
-import { Input, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+import React, { useState } from "react";
+import {
+  Input,
+  Button,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@nextui-org/react";
 import { IoFilterOutline } from "react-icons/io5";
 import { IoTrashBinSharp } from "react-icons/io5";
-import axios from "axios"; // Import Axios for making HTTP requests
+import axios from "axios";
 
 interface User {
   id: number;
@@ -12,12 +21,11 @@ interface User {
   gender: string;
   date_of_birth: string;
   phone_number: string;
-  // Add other properties as per your actual user object structure
 }
 
 interface Props {
   users: User[];
-  project_id: any; // Replace 'any' with the actual type of your project object
+  project_id: number;
 }
 
 const columns = [
@@ -36,18 +44,41 @@ const statusColorMap = {
 };
 
 const UserList: React.FC<Props> = ({ users, project_id }) => {
-console.log(project_id);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setLoading(true);
+
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:5000/project/search_user_list?project_id=${project_id}&search=${query}`
+      );
+      setSearchResults(response.data.users); // Assuming response.data.users is an array of User objects
+    } catch (error) {
+      console.error("Error searching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRemoveUser = async (userId: number) => {
     try {
-        
-      const response = await axios.delete('http://127.0.0.1:5000/project/remove_user', {
-        data: { project_id: project_id, user_id: userId }
-      });
+      const response = await axios.delete(
+        "http://127.0.0.1:5000/project/remove_user",
+        {
+          data: { project_id: project_id, user_id: userId },
+        }
+      );
       console.log(response.data.message); // Log success message
-      // Implement logic to update UI (e.g., remove user from state)
+
+      // Remove user from state or update user list
+      // Example: Update user list after deletion
     } catch (error) {
-      console.error('Error removing user:', error);
+      console.error("Error removing user:", error);
     }
   };
 
@@ -71,6 +102,9 @@ console.log(project_id);
     }
   };
 
+  // Determine which list to render based on search state
+  const userList = searchQuery ? searchResults : users;
+
   return (
     <>
       <div className="w-full h-32">
@@ -78,8 +112,8 @@ console.log(project_id);
           <div className="VStack gap-4">
             <h2 className="text-3xl font-semibold">Users</h2>
             <p className="text-lg">
-              Customers lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-              labore et dolore magna aliqua.
+              Customers lorem ipsum dolor sit amet, consectetur adipiscing elit,
+              sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
           </div>
           <div>
@@ -90,7 +124,14 @@ console.log(project_id);
 
       <section className="VSatck w-full">
         <div className="w-full HStack gap-5 items-center justify-end mb-5">
-          <Input type="text" variant="bordered" size="sm" label="Search" />
+          <Input
+            value={searchQuery}
+            onChange={handleSearchChange}
+            type="text"
+            variant="bordered"
+            size="sm"
+            label="Search"
+          />
           <Button>
             <IoFilterOutline />
             <p>Filters</p>
@@ -99,15 +140,20 @@ console.log(project_id);
         <Table className="" aria-label="User Table">
           <TableHeader columns={columns}>
             {(column) => (
-              <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+              <TableColumn
+                key={column.uid}
+                align={column.uid === "actions" ? "center" : "start"}
+              >
                 {column.name}
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody items={users}>
+          <TableBody items={userList}>
             {(item) => (
               <TableRow key={item.id}>
-                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
               </TableRow>
             )}
           </TableBody>
