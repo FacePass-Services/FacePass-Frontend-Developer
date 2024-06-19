@@ -16,7 +16,7 @@ import {
   Radio,
 } from "@nextui-org/react";
 
-export default function ProjectSettings({ project } : any) {
+export default function Settings({ project } : any) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const deleteProject = async () => {

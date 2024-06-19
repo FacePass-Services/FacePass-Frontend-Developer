@@ -34,7 +34,7 @@ export default function ProjectBar({ projectEntire }: any) {
   const handleCloseModal = () => {
     setShowModal(false);
   };
-  console.log(projectEntire);
+  // console.log(projectEntire);
 
   useEffect(() => {
     const handleScroll = () => {

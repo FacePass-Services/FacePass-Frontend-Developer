@@ -18,8 +18,9 @@ import { IoMdSettings } from "react-icons/io";
 // import { columns, users } from "@/database/data";
 import { MdEdit } from "react-icons/md";
 import { IoTrashBinSharp } from "react-icons/io5";
-import ProjectSettings from "@/components/project/ProjectSetting";
-
+import ProjectSettings from "@/components/project/pages/settings";
+import Overview from "@/components/project/pages/overview";
+import UserList from "@/components/project/pages/userlist"
 // dashboard
 import {
   Table,
@@ -52,33 +53,7 @@ import { IoFilterOutline } from "react-icons/io5";
 import { User } from "@nextui-org/react";
 import useToken from "@/hooks/useToken";
 
-const users = [
-  // Example user data
-  {
-    id: 1,
-    first_name: "John",
-    last_name: "Doe",
-    email: "john.doe@example.com",
-    gender: "male",
-    date_of_birth: "1990-01-01",
-    phone_number: "+1234567890",
-    role: "admin",
-    // status: "active",
-    team: "Team A",
-  },
-  {
-    id: 2,
-    first_name: "Jane",
-    last_name: "Smith",
-    email: "jane.smith@example.com",
-    gender: "female",
-    date_of_birth: "1995-05-15",
-    phone_number: "+9876543210",
-    role: "user",
-    // status: "inactive",
-    team: "Team B",
-  },
-];
+
 
 const columns = [
   { name: "First Name", uid: "first_name" },
@@ -87,8 +62,7 @@ const columns = [
   { name: "Gender", uid: "gender" },
   { name: "Date of Birth", uid: "date_of_birth" },
   { name: "Phone Number", uid: "phone_number" },
-  // { name: "Role", uid: "role" },
-  // { name: "Status", uid: "status" },
+
   { name: "Actions", uid: "actions" },
 ];
 
@@ -188,6 +162,10 @@ export default function Home({ params }: any) {
         return cellValue;
     }
   }, []);
+
+
+
+
 
   return (
     <main className="VStack w-screen min-h-screen items-center">
@@ -303,34 +281,8 @@ export default function Home({ params }: any) {
                   </div>
                   <p></p>
                 </li>
-                <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
-                    selectedItem === "orders"
-                      ? "bg-white dark:bg-black font-semibold  shadow-sm"
-                      : ""
-                  }`}
-                  onClick={() => handleItemClick("orders")}
-                >
-                  <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
-                    <p>Orders</p>
-                  </div>
-                  <p>1</p>
-                </li>
-                <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
-                    selectedItem === "secret"
-                      ? "bg-white dark:bg-black font-semibold  shadow-sm"
-                      : ""
-                  }`}
-                  onClick={() => handleItemClick("secret")}
-                >
-                  <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
-                    <p>Secret</p>
-                  </div>
-                  <p></p>
-                </li>
+               
+               
               </ul>
               <section
                 className={`VStack justify-between items-center cursor-pointer `}
@@ -341,7 +293,7 @@ export default function Home({ params }: any) {
                   }`}
                   onClick={() => handleItemClick("file")}
                 >
-                  <p>Files</p>
+                  <p>Advances</p>
                   {showFilesContent ? <BsChevronUp /> : <BsChevronDown />}
                 </div>
 
@@ -406,155 +358,10 @@ export default function Home({ params }: any) {
           {selectedItem && (
             <div>
               {/* Render content based on the selected item */}
-              {selectedItem === "dashboard" && (
-                <section className="VStack w-full h-full  gap-4">
-                  <div className="grid grid-cols-4 gap-4 ">
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                    <div className="VStack">
-                      <div className="HStack justify-between">
-                        <p className="font-semibold HStack items-center gap-2">
-                          Performance
-                          <span className=" opacity-70">
-                            <IoIosInformationCircle />
-                          </span>
-                        </p>
-                        <Button
-                          variant="bordered"
-                          className="HStack gap-3 border-gray-500 border-opacity-25"
-                        >
-                          <IoFilterOutline />
-                          <p>Filters</p>
-                        </Button>{" "}
-                      </div>
-                      <p className="text-xs opacity-70">Real time updates</p>
-                    </div>
-
-                    <p className="text-2xl font-semibold">$6,678.86</p>
-                    <div className=" w-full HStack items-start justify-start">
-                      <img
-                        src="https://datavizproject.com/wp-content/uploads/types/Line-Graph.png"
-                        alt=""
-                        className="h-[400px] object-contain"
-                      />
-                    </div>
-                  </div>
-                </section>
-              )}
+              {selectedItem === "dashboard" && <Overview />}
               {selectedItem === "products" && <p>Products Content</p>}
               {selectedItem === "customers" && (
-                <>
-                  <div className="w-full h-32">
-                    <div className="HStack w-full h-full justify-between">
-                      <div className="VStack gap-4">
-                        <h2 className="text-3xl font-semibold">Users</h2>
-                        <p className="text-lg">
-                          Customers lorem ipsum dolor sit amet, consectetur
-                          adipiscing elit, sed do eiusmod tempor incididunt ut
-                          labore et dolore magna aliqua.
-                        </p>
-                      </div>
-                      <div>
-                        <Button>New Customers</Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <section className="VSatck w-full">
-                    <div className="w-full HStack gap-5 items-center justify-end mb-5">
-                      <Input
-                        type="text"
-                        variant="bordered"
-                        size="sm"
-                        label="Search"
-                      />
-
-                      {/* <Dropdown>
-                        <DropdownTrigger> */}
-                          <Button>
-                            <IoFilterOutline />
-                            <p>Filters</p>
-                          </Button>{" "}
-                        {/* </DropdownTrigger>
-                        <DropdownMenu
-                          aria-label="Action event example"
-                        >
-                          <DropdownItem key="new212">New file</DropdownItem>
-                          <DropdownItem key="co321py">Copy link</DropdownItem>
-                          <DropdownItem key="ed342it">Edit file</DropdownItem>
-                          <DropdownItem
-                            key="del123123ete"
-                            className="text-danger"
-                            color="danger"
-                          >
-                            Delete file
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </Dropdown> */}
-                    </div>
-                    <Table className="" aria-label="User Table">
-                      <TableHeader columns={columns}>
-                        {(column) => (
-                          <TableColumn
-                            key={column.uid}
-                            align={
-                              column.uid === "actions" ? "center" : "start"
-                            }
-                          >
-                            {column.name}
-                          </TableColumn>
-                        )}
-                      </TableHeader>
-                      <TableBody items={users}>
-                        {(item) => (
-                          <TableRow key={item.id}>
-                            {(columnKey) => (
-                              <TableCell>
-                                {renderCell(item, columnKey)}
-                              </TableCell>
-                            )}
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </section>
-                </>
+              <UserList project_id={project_id} users={users} />
               )}
               {selectedItem === "orders" && <p>Orders Content</p>}
               {selectedItem === "secret" && <p>Secret Content</p>}
