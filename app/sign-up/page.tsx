@@ -1,58 +1,34 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import {
-  Input,
-  Button,
-  RadioGroup,
-  Radio,
-  DatePicker,
-} from "@nextui-org/react";
+import { Input, Button, DatePicker } from "@nextui-org/react";
+import { Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
+import {
+  Modal,
+  ModalContent,
+  ModalBody,
+  useDisclosure,
+  RadioGroup,
+  Radio,
+} from "@nextui-org/react";
 
 export default function App() {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthDate, setBirthDate] = useState<Date | null>(null);
-  const [formattedBirthDate, setFormattedBirthDate] = useState<string | null>(
-    null
-  );
+  const [formattedBirthDate, setFormattedBirthDate] = useState<string | null>(null);
   const [gender, setGender] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [verifyEmail, setVerifyEmail] = useState("");
-  const [isVerify, setIsVerify] = useState(false);
-  const [isVerifySend, setIsVerifySend] = useState(false);
 
-  const [countdown, setCountdown] = useState<number | null>(null);
-
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const formatDate = (date: any) => {
     return moment(date).format("MM/DD/YYYY");
   };
-
-  const verifyOn = () => {
-    setIsVerify(true);
-    setCountdown(15);
-    setIsVerifySend(true);
-  };
-
-  useEffect(() => {
-    if (countdown === 0) {
-      setCountdown(null);
-      setIsVerify(false);
-    }
-
-    if (countdown !== null) {
-      const timer = setInterval(() => {
-        setCountdown((prev) => (prev !== null ? prev - 1 : prev));
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [countdown]);
 
   const signUp = async () => {
     try {
@@ -66,11 +42,14 @@ export default function App() {
       });
 
       console.log("Registration successful!", response.data);
-      // Redirect or show a success message
-      router.push("/sign-in"); // Redirect to "/sign-in"
+      onOpen();
+
+      setTimeout(() => {
+        router.push("/sign-in");
+      }, 1500);
+
     } catch (error) {
       console.error("Sign-up error:", error);
-      // Handle error, show error message to user, etc.
     }
   };
 
@@ -86,7 +65,7 @@ export default function App() {
         <p>One FacePass account is all you need to access all services.</p>
         <form onSubmit={handleSubmit} className="VStack gap-5">
           <div className="HStack gap-5">
-            <div className=" flex w-full flex-wrap md:flex-nowrap gap-4">
+            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
               <Input
                 variant="bordered"
                 type="text"
@@ -115,7 +94,6 @@ export default function App() {
             }}
             className="w-full"
           />
-
           <RadioGroup
             label="Select your gender"
             value={gender}
@@ -125,7 +103,6 @@ export default function App() {
             <Radio value="male">Male</Radio>
             <Radio value="female">Female</Radio>
           </RadioGroup>
-
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
             <Input
               variant="bordered"
@@ -135,7 +112,6 @@ export default function App() {
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
-          <div className="HSection-break"></div>
           <div className="flex w-full flex-wrap md:flex-nowrap justify-end gap-4">
             <Input
               variant="bordered"
@@ -145,30 +121,7 @@ export default function App() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <Button
-              size="lg"
-              color="success"
-              onClick={verifyOn}
-              className="text-white"
-              isDisabled={isVerify} // Disable the button if isVerify is true
-            >
-              {isVerify ? `Wait ${countdown}s` : "Verify"}
-            </Button>
           </div>
-          {(isVerifySend || countdown === 0) && (
-            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-              <Input
-                variant="bordered"
-                type="text"
-                label="Verify code"
-                description="Only use for verify email"
-                value={verifyEmail}
-                onChange={(e) => setVerifyEmail(e.target.value)}
-              />
-            </div>
-          )}
-
-          <div className="Hsection-break"></div>
           <div className="w-full">
             <p className="text-xs text-center">
               <span className="opacity-75">
@@ -178,9 +131,23 @@ export default function App() {
               </span>
             </p>
           </div>
-          <Button type="submit">Continue</Button>
+          <Button type="submit">Sign Up</Button>
         </form>
       </div>
+      <Modal className=" w-96 h-96" isOpen={isOpen} onOpenChange={onOpenChange} >
+        <ModalContent>
+          <>
+            <ModalBody className="VStack w-full h-full justify-center gap-5 items-center">
+              <Image
+                src="images/done-animate.gif"
+                className="w-36 h-36 object-cover"
+                alt=""
+              />
+              <p className="text-black font-medium text-3xl">Done</p>
+            </ModalBody>
+          </>
+        </ModalContent>
+      </Modal>
     </main>
   );
 }
