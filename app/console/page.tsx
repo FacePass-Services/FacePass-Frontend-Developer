@@ -55,7 +55,7 @@ export default function App() {
           onClick={handleCloseModal}
         >
           <div
-            className="bg-secondary dark:bg-secondary-dark dark:bg-dark-secondary p-4 rounded-md text-center min-w-[400px] h-auto flex flex-col items-center"
+            className="bg-secondary dark:bg-secondary-dark dark:bg-dark-secondary p-4 rounded-lg text-center min-w-[400px] h-auto flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             <CreateProject />

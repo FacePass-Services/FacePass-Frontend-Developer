@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import CreateProject from "@/components/console/CreateProject";
+import { GoChevronLeft } from "react-icons/go";
+
 import {
   Navbar,
   NavbarBrand,
@@ -55,15 +57,17 @@ export default function ProjectBar({ projectEntire }: any) {
     <>
       <Navbar
         className="bg-transparent"
-        maxWidth="2xl"
+        maxWidth="full"
         onMenuOpenChange={setIsMenuOpen}
       >
         <NavbarContent justify="start">
           {projectEntire && projectEntire.project && (
             <Link
-              href="/"
-              className="font-semibold cursor-pointer text-2xl dark:text-white text-black"
+              href="/console"
+              className="font-semibold HStack gap-1 min-w-[150px] items-center justify-startcursor-pointer text-2xl dark:text-white text-black"
             >
+              <GoChevronLeft className="font-bold text-3xl" />
+
               {projectEntire.project.title}
             </Link>
           )}

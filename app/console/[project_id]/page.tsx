@@ -247,7 +247,7 @@ export default function Home({ params }: any) {
                   <div className="HStack gap-2 items-center">
                     <TiThSmall className="text-xl" />
 
-                    <p>Dashboard</p>
+                    <p>OverView</p>
                   </div>
                   <p></p>
                 </li>
