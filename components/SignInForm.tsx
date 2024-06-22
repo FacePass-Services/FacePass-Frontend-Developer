@@ -28,7 +28,19 @@ type SignInFormProps = {
 };
 
 const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
+  // const { setToken, role } = useToken();
+  // const [email, setEmail] = useState("");
+  // const [passcode, setPasscode] = useState("");
+  // const [emailEntered, setEmailEntered] = useState(false);
+  // const [emailExists, setEmailExists] = useState(false);
+  // const [checked, setChecked] = useState(false);
+  // const [errorMessage, setErrorMessage] = useState("");
+  // const [signedIn, setSignedIn] = useState(false);
+  // const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  // const router = useRouter();
   const { setToken, role } = useToken();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [passcode, setPasscode] = useState("");
   const [emailEntered, setEmailEntered] = useState(false);
@@ -36,8 +48,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
   const [checked, setChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [signedIn, setSignedIn] = useState(false);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const router = useRouter();
+  const [emailError, setEmailError] = useState("");
+  const [passcodeError, setPasscodeError] = useState("");
 
   type CheckedStates = {
     sub_a: boolean;
@@ -66,7 +78,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       content: (
         <>
           <div className="VStack gap-5 w-full">
-          <p>
+            <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -176,7 +188,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       content: (
         <>
           <div className="VStack gap-5 w-full">
-          <p>
+            <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -229,8 +241,6 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
 
   useEffect(() => {
     if (signedIn && role !== "user") {
-      console.log("your develoerp");
-      
       window.location.href = "/";
     }
   }, [signedIn, role]);
@@ -269,6 +279,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         }
       );
       console.log("Login response:", response.data);
+      
       return response.data;
     } catch (error) {
       console.error("Login error:", error);
@@ -281,48 +292,63 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       try {
         let response;
         if (checkedStates.sub_a) {
-          response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_lite", {
-            email,
-          });
+          response = await axios.post(
+            "http://127.0.0.1:5000/auth/upgrade_dev_lite",
+            {
+              email,
+            }
+          );
           console.log("Role upgraded to 'dev_lite'");
         } else if (checkedStates.sub_b) {
-          response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_plus", {
-            email,
-          });
+          response = await axios.post(
+            "http://127.0.0.1:5000/auth/upgrade_dev_plus",
+            {
+              email,
+            }
+          );
           console.log("Role upgraded to 'dev_plus'");
         } else if (checkedStates.sub_c) {
-          response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_pro", {
-            email,
-          });
+          response = await axios.post(
+            "http://127.0.0.1:5000/auth/upgrade_dev_pro",
+            {
+              email,
+            }
+          );
           onOpen();
 
           console.log("Role upgraded to 'dev_pro'");
         }
-  
+
         if (response && response.data) {
           const data = response.data;
-  
+
           // Assuming the response data contains the new token and user info
           setToken(data);
           onOpen();
 
           setTimeout(() => {
             router.push("/");
-          }, 1500);        } else {
+          }, 1500);
+        } else {
           console.error("No response data received");
         }
       } catch (error) {
         console.error("Error updating role:", error);
       }
     } else {
-      alert("Please check at least one of the checkboxes to sign in as a developer.");
+      alert(
+        "Please check at least one of the checkboxes to sign in as a developer."
+      );
     }
   };
-  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!emailEntered && email !== "") {
+    if (!emailEntered) {
+      if (!email) {
+        setEmailError("Please enter your email.");
+        return;
+      }
       const exists = await checkEmailExists(email);
       if (exists) {
         setEmailExists(true);
@@ -338,17 +364,18 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         console.log("Response to setToken:", response);
         setToken(response);
         setSignedIn(true);
-    
       } catch (error) {
         console.error("Login error:", error);
+        setPasscodeError("Incorrect passcode. Please try again.");
       }
     }
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
+    setEmailError("");
     setErrorMessage("");
-  };
+    setPasscodeError("");  };
 
   return (
     <>
@@ -356,7 +383,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         <form onSubmit={handleSubmit} className="VStack gap-5 w-full">
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
             <Input
-            isRequired
+              isRequired
               variant="bordered"
               type="email"
               label="Email"
@@ -365,15 +392,25 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
               isDisabled={emailEntered}
             />
           </div>
-          {errorMessage && <div className="error-message">{errorMessage}</div>}
+          {emailError && (
+            <div className="error-message text-red-500">{emailError}</div>
+          )}
+          {errorMessage && (
+            <div className="error-message text-red-500">{errorMessage}</div>
+          )}{" "}
           {emailEntered && emailExists && (
-            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+            <div className="VStack flex w-full flex-wrap md:flex-nowrap gap-4">
               <Input
                 type="password"
                 label="Passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
               />
+              {passcodeError && (
+                <div className="error-message text-red-500">
+                  {passcodeError}
+                </div>
+              )}
             </div>
           )}
           <Button type="submit">{emailEntered ? "Sign In" : "Continue"}</Button>
@@ -405,9 +442,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         )
       )}
 
-
-
-<Modal className=" w-96 h-96" isOpen={isOpen} onOpenChange={onOpenChange}>
+      <Modal className=" w-96 h-96" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <>
             <ModalBody className="VStack w-full h-full justify-center gap-5 items-center">
