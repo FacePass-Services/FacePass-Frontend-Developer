@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input, Button, Checkbox, Link } from "@nextui-org/react";
 import axios from "axios";
 import { IoCheckmarkCircle, IoCloseCircle } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 import useToken from "@/hooks/useToken";
 import { Tabs, Tab, Card, CardBody } from "@nextui-org/react";
@@ -13,7 +14,15 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/react";
-
+import {
+  Image,
+  Modal,
+  ModalContent,
+  ModalBody,
+  useDisclosure,
+  RadioGroup,
+  Radio,
+} from "@nextui-org/react";
 type SignInFormProps = {
   isDeveloperPage?: boolean;
 };
@@ -27,7 +36,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
   const [checked, setChecked] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [signedIn, setSignedIn] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false); // State for login success
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const router = useRouter();
 
   type CheckedStates = {
     sub_a: boolean;
@@ -219,6 +229,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
 
   useEffect(() => {
     if (signedIn && role !== "user") {
+      console.log("your develoerp");
+      
       window.location.href = "/";
     }
   }, [signedIn, role]);
@@ -282,6 +294,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
           response = await axios.post("http://127.0.0.1:5000/auth/upgrade_dev_pro", {
             email,
           });
+          onOpen();
+
           console.log("Role upgraded to 'dev_pro'");
         }
   
@@ -290,9 +304,11 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
   
           // Assuming the response data contains the new token and user info
           setToken(data);
-  
-          window.location.href = "/developer/workspace/project";
-        } else {
+          onOpen();
+
+          setTimeout(() => {
+            router.push("/");
+          }, 1500);        } else {
           console.error("No response data received");
         }
       } catch (error) {
@@ -322,10 +338,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         console.log("Response to setToken:", response);
         setToken(response);
         setSignedIn(true);
-        setLoginSuccess(true); // Set login success to true
-        // setTimeout(() => {
-        //   window.location.href = "/"; 
-        // }, 1500);
+    
       } catch (error) {
         console.error("Login error:", error);
       }
@@ -343,6 +356,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         <form onSubmit={handleSubmit} className="VStack gap-5 w-full">
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
             <Input
+            isRequired
               variant="bordered"
               type="email"
               label="Email"
@@ -390,11 +404,25 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
           </>
         )
       )}
-      {loginSuccess && (
-        <div className="success-message">
-          Logged in successfully! Redirecting...
-        </div>
-      )}
+
+
+
+<Modal className=" w-96 h-96" isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          <>
+            <ModalBody className="VStack w-full h-full justify-center gap-5 items-center">
+              <Image
+                src="images/done-animate.gif"
+                className="w-36 h-36 object-cover rounded-full"
+                alt=""
+              />
+              <p className="text-black dark:text-white font-medium text-3xl">
+                Done
+              </p>
+            </ModalBody>
+          </>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
