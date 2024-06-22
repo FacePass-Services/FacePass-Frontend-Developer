@@ -345,7 +345,7 @@ export default function Home({ params }: any) {
               >
                 <div className="HStack gap-2 items-center">
                   <IoMdSettings className="w-5 h-5 aspect-square" />
-                  <p>Setting</p>
+                  <p>Settings</p>
                 </div>
                 <p></p>
               </li>
