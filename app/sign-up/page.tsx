@@ -67,6 +67,7 @@ export default function App() {
           <div className="HStack gap-5">
             <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
               <Input
+              isRequired
                 variant="bordered"
                 type="text"
                 label="First name"
@@ -76,6 +77,7 @@ export default function App() {
             </div>
             <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
               <Input
+              isRequired
                 variant="bordered"
                 type="text"
                 label="Last name"
@@ -85,6 +87,7 @@ export default function App() {
             </div>
           </div>
           <DatePicker
+          isRequired
             variant="bordered"
             label="Birth date"
             value={birthDate}
@@ -95,6 +98,7 @@ export default function App() {
             className="w-full"
           />
           <RadioGroup
+          isRequired
             label="Select your gender"
             value={gender}
             onChange={(e) => setGender(e.target.value)}
@@ -105,6 +109,7 @@ export default function App() {
           </RadioGroup>
           <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
             <Input
+            isRequired
               variant="bordered"
               type="number"
               label="Phone number"
@@ -114,6 +119,7 @@ export default function App() {
           </div>
           <div className="flex w-full flex-wrap md:flex-nowrap justify-end gap-4">
             <Input
+            isRequired
               variant="bordered"
               type="email"
               label="Email"
@@ -140,10 +146,10 @@ export default function App() {
             <ModalBody className="VStack w-full h-full justify-center gap-5 items-center">
               <Image
                 src="images/done-animate.gif"
-                className="w-36 h-36 object-cover"
+                className="w-36 h-36 object-cover rounded-full"
                 alt=""
               />
-              <p className="text-black font-medium text-3xl">Done</p>
+              <p className="text-black dark:text-white font-medium text-3xl">Done</p>
             </ModalBody>
           </>
         </ModalContent>
