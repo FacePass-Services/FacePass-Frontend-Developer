@@ -50,49 +50,12 @@ export default function General() {
 
   return (
     <section className="w-full h-full gap-5 items-center VStack">
-      {/* User information display */}
-
-      {/* Input fields for editing user information */}
       <section
         id="Toolbar"
         className="VStack md:w-8/12 w-full justify-between pl-2 pr-2"
       >
         <div className="VStack w-full">
           <section className="VStack gap-7 text-sm">
-            {/* {isEditing ? (
-              <>
-                <div className="HStack items-center  w-full justify-between">
-                  <Link
-                    onClick={updateCancel}
-                    className=" cursor-pointer text-blue-500   HStack"
-                  >
-                    {" "}
-                    Cancel
-                  </Link>
-                  <Button
-                    onClick={updateUser}
-                    className="gap-3 items-center text-black dark:text-white bg-primary dark:bg-primary-dark HStack"
-                  >
-                    {" "}
-                    <MdDownloadDone />
-                    Done
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="HStack  w-full justify-end">
-                <Button
-                  onClick={handleEditMode}
-                  className="gap-3 text-black dark:text-white bg-primary dark:bg-primary-dark HStack"
-                >
-                  {" "}
-                  <CiEdit />
-                  Edit
-                </Button>
-              </div>
-            )} */}
-
-            {/* First name input section */}
             <ul className="VStack divide-y dark:divide-gray-800 dark:bg-primary-dark bg-primary rounded-lg">
               <li className="HStack w-full justify-between cursor-pointer pl-5 pr-5 pb-3 pt-3">
                 <div className="HStack w-full justify-between items-center">

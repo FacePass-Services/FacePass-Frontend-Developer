@@ -10,7 +10,7 @@ import AccessibilitySetting from "@/components/settings/AccessibilitySetting";
 import ControlSetting from "@/components/settings/ContolCenterSetting";
 import { Link } from "@nextui-org/react";
 import { GoChevronLeft } from "react-icons/go";
-
+import Subscriptions from "@/components/settings/SubscriptionsSetting";
 export default function App() {
   const [selectedItem, setSelectedItem] = useState("user");
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
@@ -117,6 +117,8 @@ export default function App() {
           {selectedItem === "control" && <ControlSetting />}
           {selectedItem === "accessibility" && <AccessibilitySetting />}
           {selectedItem === "privacy" && <PrivacySetting />}
+          {selectedItem === "subscriptions" && <Subscriptions />}
+
         </section>
       </div>
     </main>

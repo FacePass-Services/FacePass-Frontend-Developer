@@ -121,6 +121,22 @@ export default function SerttingToolsBar({
               </div>
             </li>
           </ul>
+          <ul className="VStack  bg-primary divide-y dark:divide-gray-800  dark:bg-primary-dark rounded-lg ">
+            <li
+              className={`HStack  w-full justify-between cursor-pointer  pl-5 pr-5 pb-3 pt-3 ${
+                selectedItem === "subscriptions"
+                ? "dark:bg-opacity-45 font-semibold shadow-sm"
+                : ""
+              }`}
+              onClick={() => handleItemClick("subscriptions")}
+            >
+              <div className="HStack w-full justify-between items-center">
+                <p>Subscriptions</p>
+                <GoChevronRight className=" font-normal text-base" />
+              </div>
+            </li>
+          
+          </ul>
         </section>
       </div>
     </section>
