@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Input,
   Button,
@@ -47,57 +47,54 @@ const columns = [
   { name: "Actions", uid: "actions" },
 ];
 
-const statusColorMap = {
-  active: "success",
-  deactive: "danger",
-};
-
 const UserList: React.FC<Props> = ({ users, project_id }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedUserId, setSelectedUserId] = useState<number>();
-
-  // Define users state and its setter function
   const [usersList, setUsersList] = useState<User[]>(users);
+
+  useEffect(() => {
+    setUsersList(users);
+  }, [users]);
 
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     setLoading(true);
 
+    if (query === "") {
+      setSearchResults([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.get(
         `http://127.0.0.1:5000/project/search_user_list?project_id=${project_id}&search=${query}`
       );
-      setSearchResults(response.data.users); // Assuming response.data.users is an array of User objects
+      setSearchResults(response.data.users);
     } catch (error) {
       console.error("Error searching users:", error);
     } finally {
       setLoading(false);
     }
   };
+
   const handleRemoveUser = async (userId: number) => {
     try {
-      // Send delete request to the server
-      await axios.delete(
-        "http://127.0.0.1:5000/project/remove_user",
-        {
-          data: { project_id: project_id, user_id: userId },
-        }
-      );
-  
-      // Update users list state after successful deletion
-      const updatedUsersList = usersList.filter(user => user.id !== userId);
-      setUsersList(updatedUsersList); // Update the state
+      await axios.delete("http://127.0.0.1:5000/project/remove_user", {
+        data: { project_id: project_id, user_id: userId },
+      });
+
+      const updatedUsersList = usersList.filter((user) => user.id !== userId);
+      setUsersList(updatedUsersList);
       console.log("User removed successfully");
     } catch (error) {
       console.error("Error removing user:", error);
-      // Handle error scenarios, e.g., show an error message to the user
     }
   };
-  
 
   const renderCell = (user: User, columnKey: string) => {
     const cellValue = user[columnKey as keyof User];
@@ -122,7 +119,6 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
     }
   };
 
-  // Determine which list to render based on search state
   const userList = searchQuery ? searchResults : usersList;
 
   return (
@@ -180,11 +176,7 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
         </Table>
       </section>
 
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        scrollBehavior="inside"
-      >
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} scrollBehavior="inside">
         <ModalContent>
           {(onClose) => (
             <>
@@ -193,17 +185,11 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
               </ModalHeader>
               <ModalBody>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor quam.
                 </p>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor quam.
                 </p>
-               
-               
               </ModalBody>
               <ModalFooter className="w-full justify-between">
                 <Button variant="light" onPress={onClose}>
@@ -213,8 +199,8 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
                   <Button
                     color="danger"
                     onPress={() => {
-                      handleRemoveUser(selectedUserId); // Pass selectedUserId here
-                      onClose(); // Close modal after action
+                      handleRemoveUser(selectedUserId);
+                      onClose();
                     }}
                   >
                     Remove
