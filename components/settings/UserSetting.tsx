@@ -6,6 +6,7 @@ import { MdDownloadDone } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
 import useToken from "@/hooks/useToken";
 import { Chip } from "@nextui-org/react";
+import axios from "axios";
 
 const UserSetting = () => {
   const {
@@ -22,21 +23,12 @@ const UserSetting = () => {
 
   const [editedFirstName, setEditedFirstName] = useState(firstName);
   const [editedLastName, setEditedLastName] = useState(lastName);
-  const [editedDOB, setEditedDOB] = useState(dateOfBirth);
-  const [editedGender, setEditedGender] = useState(gender);
-  const [editedPhone, setEditedPhone] = useState(phoneNumber);
-  const [editedEmail, setEditedEmail] = useState(email);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setEditedFirstName(firstName);
     setEditedLastName(lastName);
-    setEditedDOB(dateOfBirth);
-    setEditedGender(gender);
-    setEditedPhone(phoneNumber);
-    setEditedEmail(email);
-  }, [firstName, lastName, dateOfBirth, gender, phoneNumber, email]);
-  console.log(role);
+  }, [firstName, lastName]);
 
   const profileImg =
     "https://static.vecteezy.com/system/resources/thumbnails/018/742/015/small_2x/minimal-profile-account-symbol-user-interface-theme-3d-icon-rendering-illustration-isolated-in-transparent-background-png.png";
@@ -51,35 +43,27 @@ const UserSetting = () => {
 
   const updateUser = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/update_user", {
-        method: "POST",
+      const response = await axios.post("http://127.0.0.1:5000/user/update_user", {
+        email: email,
+        first_name: editedFirstName,
+        last_name: editedLastName,
+
+      }, {
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          first_name: editedFirstName,
-          last_name: editedLastName,
-          // Add other fields to update here as needed
-        }),
+        }
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
+  
+      const data = response.data;
+  
+      if (response.status === 200) {
         setIsEditing(false);
         console.log("User updated successfully!", data);
 
-        // Update local storage and state using saveToken
         setToken(data);
-
-        // Optionally update the state variables directly if necessary
+  
         setEditedFirstName(data.user.first_name);
         setEditedLastName(data.user.last_name);
-        setEditedDOB(data.user.date_of_birth);
-        setEditedGender(data.user.gender);
-        setEditedPhone(data.user.phone_number);
-        setEditedEmail(data.user.email);
         window.location.reload();
       } else {
         console.error("Error updating user:", data.message);
