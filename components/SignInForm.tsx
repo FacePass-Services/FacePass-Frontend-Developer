@@ -112,7 +112,8 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         setIsSuccessModalOpen(true);
 
         setTimeout(() => {
-          router.push(`/payment/${user_id}`);
+          // router.push(`/payment/${user_id}`);
+          router.push("/");
         }, 1500);
       } catch (error) {
         console.error("Error updating role:", error);

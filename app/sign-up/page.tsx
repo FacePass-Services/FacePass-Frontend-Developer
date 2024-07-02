@@ -1,7 +1,7 @@
 "use client";
 import React, { SetStateAction, useState } from "react";
 import axios from "axios";
-import { Input, Button, DatePicker, DateValue } from "@nextui-org/react";
+import { Input, Button, DatePicker, DateValue, CalendarDate } from "@nextui-org/react";
 import { Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
@@ -19,7 +19,7 @@ export default function App() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [birthDate, setBirthDate] = useState<Date | null>(null);
+  const [birthDate, setBirthDate] = useState<DateValue | null>(null);
   const [formattedBirthDate, setFormattedBirthDate] = useState<string | null>(
     null
   );
@@ -174,9 +174,9 @@ export default function App() {
             isRequired
             variant="bordered"
             label="Birth date"
-            value={birthDate as DateValue | null}
+            value={birthDate}
             onChange={(date) => {
-              setBirthDate(date.toDate("GMT+0:00") as SetStateAction<Date | null>);
+              setBirthDate(date);
               setFormattedBirthDate(date !== null ? formatDate(date) : null);
               setBirthDateError("");
             }}
