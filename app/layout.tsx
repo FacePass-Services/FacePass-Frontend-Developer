@@ -6,7 +6,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ToolsBar from "@/components/ToolsBar";
 import ConsoleBar from "@/components/console/ToolsBar";
-
+import { config } from "dotenv";
+config();
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -25,6 +26,8 @@ export default function RootLayout({
           <ConsoleBar />
         ) : pathname.startsWith("/console/") ? (
           <div></div>
+        ) : pathname === "/" ? (
+          <ToolsBar isHome={true} />
         ) : (
           <ToolsBar />
         )}
