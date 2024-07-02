@@ -3,6 +3,7 @@ import { Button } from "@nextui-org/react";
 
 import { IoIosInformationCircle } from "react-icons/io";
 import { IoFilterOutline } from "react-icons/io5";
+import Image from "next/image";
 
 export default function Overview() {
   return (
@@ -59,7 +60,7 @@ export default function Overview() {
 
         <p className="text-2xl font-semibold">$6,678.86</p>
         <div className=" w-full HStack items-start justify-start">
-          <img
+          <Image
             src="https://datavizproject.com/wp-content/uploads/types/Line-Graph.png"
             alt=""
             className="h-[400px] object-contain"

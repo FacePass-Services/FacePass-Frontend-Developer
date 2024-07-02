@@ -15,6 +15,7 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
+import { BACKEND_URL } from "@/lib/config";
 
 export default function General() {
   const { email, logout } = useToken();
@@ -22,7 +23,7 @@ export default function General() {
 
   const deleteuser = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/delete_user", {
+      const response = await fetch(`${BACKEND_URL}/user/delete_user`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

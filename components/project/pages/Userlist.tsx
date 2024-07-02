@@ -21,6 +21,7 @@ import {
 import { IoFilterOutline } from "react-icons/io5";
 import { IoTrashBinSharp } from "react-icons/io5";
 import axios from "axios";
+import { BACKEND_URL } from "@/lib/config";
 
 interface User {
   id: number;
@@ -72,7 +73,7 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
 
     try {
       const response = await axios.get(
-        `http://127.0.0.1:5000/project/search_user_list?project_id=${project_id}&search=${query}`
+        `${BACKEND_URL}/project/search_user_list?project_id=${project_id}&search=${query}`
       );
       setSearchResults(response.data.users);
     } catch (error) {
@@ -84,7 +85,7 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
 
   const handleRemoveUser = async (userId: number) => {
     try {
-      await axios.delete("http://127.0.0.1:5000/project/remove_user", {
+      await axios.delete(`${BACKEND_URL}/project/remove_user`, {
         data: { project_id: project_id, user_id: userId },
       });
 
@@ -128,13 +129,10 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
           <div className="VStack gap-4">
             <h2 className="text-3xl font-semibold">Users</h2>
             <p className="text-lg">
-              Customers lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              User management tool
             </p>
           </div>
-          <div>
-            <Button>New Customers</Button>
-          </div>
+        
         </div>
       </div>
 
@@ -168,7 +166,7 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
             {(item) => (
               <TableRow key={item.id}>
                 {(columnKey) => (
-                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                  <TableCell>{renderCell(item, columnKey.toString())}</TableCell>
                 )}
               </TableRow>
             )}
@@ -185,10 +183,7 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
               </ModalHeader>
               <ModalBody>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                Developers on the FacePass Developer Platform (Developer.facepass.net) must ensure they have legitimate reasons for removing a User from a project, such as violations of terms, inactivity, or security concerns, and must notify Users, providing reasons and relevant documentation. Users have the right to receive a notification about their removal, including the reason and any potential appeal process. Developers must provide a 7-day grace period for Users to appeal or resolve issues before final removal, during which Users can contact the Developer for clarification or dispute. Post-removal, Developers must handle the User’s data per the FacePass Privacy Policy and data protection regulations, informing Users about data handling and options for retrieval or deletion. Developers must review and respond to appeals within a reasonable timeframe, providing a final decision. Compliance with FacePass policies, including privacy and user rights, is mandatory, and abuse of the removal process may result in the Developer’s account suspension or termination. By managing projects, Developers agree to these terms and conditions for removing Users from projects.
                 </p>
               </ModalBody>
               <ModalFooter className="w-full justify-between">

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Input, Textarea, Link } from "@nextui-org/react";
 import axios from "axios";
 import useToken from "@/hooks/useToken"; // Adjust the import path as necessary
+import { BACKEND_URL } from "@/lib/config";
 
 const CreateProject: React.FC = () => {
   const [title, setTitle] = useState("");
@@ -24,7 +25,7 @@ const CreateProject: React.FC = () => {
       console.log("User ID:", userId);
       
       // Make a POST request to create a new project
-      const response = await axios.post("http://127.0.0.1:5000/project/create", {
+      const response = await axios.post(`${BACKEND_URL}/project/create`, {
         title: title,
         description: description,
         created_user_id: userId, // Use the userId from the useToken hook

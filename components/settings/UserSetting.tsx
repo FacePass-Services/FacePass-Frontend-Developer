@@ -6,6 +6,7 @@ import { MdDownloadDone } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
 import useToken from "@/hooks/useToken";
 import { Chip } from "@nextui-org/react";
+import { BACKEND_URL } from "@/lib/config";
 
 const UserSetting = () => {
   const {
@@ -51,7 +52,7 @@ const UserSetting = () => {
 
   const updateUser = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/update_user", {
+      const response = await fetch(`${BACKEND_URL}/user/update_user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -10,6 +10,7 @@ import { SlOptionsVertical } from "react-icons/sl";
 import Link from "next/link";
 import useToken from "@/hooks/useToken";
 import { useRouter } from "next/navigation";
+import { BACKEND_URL } from "@/lib/config";
 
 type Project = {
   id: string;
@@ -26,7 +27,7 @@ const Projects = () => {
       try {
         console.log(userId);
         const response = await axios.get(
-          `http://127.0.0.1:5000/project/get_dev_project?created_user_id=${userId}`
+          `${BACKEND_URL}/project/get_dev_project?created_user_id=${userId}`
         );
         setProjects(response.data.projects);
       } catch (error) {

@@ -20,7 +20,7 @@ import {
 } from "@nextui-org/react";
 import axios from "axios";
 import useToken from "@/hooks/useToken";
-
+import { BACKEND_URL } from "@/lib/config";
 export default function Subscriptions() {
   const router = useRouter();
   const { role, email, setToken } = useToken();
@@ -30,13 +30,13 @@ export default function Subscriptions() {
     let endpoint;
     switch (plan) {
       case "a":
-        endpoint = "http://127.0.0.1:5000/auth/upgrade_dev_lite";
+        endpoint = `${BACKEND_URL}/auth/upgrade_dev_lite`;
         break;
       case "b":
-        endpoint = "http://127.0.0.1:5000/auth/upgrade_dev_plus";
+        endpoint = `${BACKEND_URL}/auth/upgrade_dev_plus`;
         break;
       case "c":
-        endpoint = "http://127.0.0.1:5000/auth/upgrade_dev_pro";
+        endpoint = `${BACKEND_URL}/auth/upgrade_dev_pro`;
         break;
       default:
         return;

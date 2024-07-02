@@ -15,13 +15,14 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
+import { BACKEND_URL } from "@/lib/config";
 
 export default function Settings({ project } : any) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const deleteProject = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000//project/delete_project", {
+      const response = await fetch(`${BACKEND_URL}//project/delete_project`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import { Input, Textarea, Button } from "@nextui-org/react";
 import { Select, SelectItem } from "@nextui-org/select";
 
@@ -32,7 +32,7 @@ const EmailForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="VStack gap-5 w-full">
       <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-        <Select label="Select a topic" value={selectedTopic} onChange={(value) => setSelectedTopic(value)}>
+        <Select label="Select a topic" value={selectedTopic} onChange={(value) => setSelectedTopic(String(value) as SetStateAction<string>)}>
           {titles.map((title) => (
             <SelectItem key={title.value} value={title.value}>
               {title.label}
