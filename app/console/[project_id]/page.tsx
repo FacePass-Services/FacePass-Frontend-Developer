@@ -18,9 +18,12 @@ import { IoMdSettings } from "react-icons/io";
 // import { columns, users } from "@/database/data";
 import { MdEdit } from "react-icons/md";
 import { IoTrashBinSharp } from "react-icons/io5";
-import ProjectSettings from "@/components/project/pages/settings";
-import Overview from "@/components/project/pages/overview";
-import UserList from "@/components/project/pages/userlist"
+import ProjectSettings from "@/components/project/pages/Settings";
+import Overview from "@/components/project/pages/Overview";
+import UserList from "@/components/project/pages/Userlist"
+
+
+
 // dashboard
 import {
   Table,
@@ -52,6 +55,8 @@ import { IoIosInformationCircle } from "react-icons/io";
 import { IoFilterOutline } from "react-icons/io5";
 import { User } from "@nextui-org/react";
 import useToken from "@/hooks/useToken";
+import { env } from "process";
+import { BACKEND_URL } from "@/lib/config";
 
 
 
@@ -65,6 +70,7 @@ const columns = [
 
   { name: "Actions", uid: "actions" },
 ];
+
 
 export default function Home({ params }: any) {
   const router = useRouter();
@@ -90,7 +96,7 @@ export default function Home({ params }: any) {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://127.0.0.1:5000/project/get_user_list?project_id=${project_id}`
+          `${BACKEND_URL}/project/get_user_list?project_id=${project_id}`
         );
         if (res.status === 200) {
           setUsers(res.data.folder.users);
@@ -247,7 +253,7 @@ export default function Home({ params }: any) {
                   <div className="HStack gap-2 items-center">
                     <TiThSmall className="text-xl" />
 
-                    <p>OverView</p>
+                    <p>Overview</p>
                   </div>
                   <p></p>
                 </li>

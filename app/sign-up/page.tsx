@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import axios from "axios";
-import { Input, Button, DatePicker } from "@nextui-org/react";
+import { Input, Button, DatePicker, DateValue } from "@nextui-org/react";
 import { Image } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
@@ -13,6 +13,7 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
+import { BACKEND_URL } from "@/lib/config";
 
 export default function App() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -42,7 +43,7 @@ export default function App() {
 
   const checkEmailExists = async (email: string) => {
     try {
-      const response = await axios.post("http://127.0.0.1:5000/check_email", {
+      const response = await axios.post(`${BACKEND_URL}/check_email`, {
         email,
       });
       return response.data.exists;
@@ -54,7 +55,7 @@ export default function App() {
 
   const signUp = async () => {
     try {
-      const response = await axios.post("http://127.0.0.1:5000/auth/register", {
+      const response = await axios.post(`${BACKEND_URL}/auth/register`, {
         first_name: firstName,
         last_name: lastName,
         date_of_birth: formattedBirthDate,
@@ -173,9 +174,9 @@ export default function App() {
             isRequired
             variant="bordered"
             label="Birth date"
-            value={birthDate}
+            value={birthDate as DateValue | null}
             onChange={(date) => {
-              setBirthDate(date);
+              setBirthDate(date.toDate("GMT+0:00") as SetStateAction<Date | null>);
               setFormattedBirthDate(date !== null ? formatDate(date) : null);
               setBirthDateError("");
             }}

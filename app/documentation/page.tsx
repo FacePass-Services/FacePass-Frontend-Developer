@@ -53,7 +53,7 @@ export default function App() {
                   Time-Sharing System (CTSS) in the 1960s, introduced basic
                   password-based authentication for securing shared resources,
                   but vulnerabilities were evident. Innovations such as Robert
-                  Morris's cryptographic hash functions in the 1970s greatly
+                  Morris&apos;s cryptographic hash functions in the 1970s greatly
                   improved password security[1]. This marked a pivotal moment in
                   authentication evolution, making password hashing a standard
                   practice across operating systems and platforms. Advancements
@@ -62,7 +62,7 @@ export default function App() {
                   the adoption of more sophisticated methods.
                 </p>
                 <p>
-                  In today's digital landscape, most website interactions
+                  In today&apos;s digital landscape, most website interactions
                   necessitate authentication. Whether logging into social media
                   platforms, accessing online banking services, or making
                   purchases on e- commerce sites. With the rise of IoT devices,
@@ -79,7 +79,7 @@ export default function App() {
                   actions, and interact with online services securely.
                 </p>
                 <p>
-                  In today's digital landscape, various authentication methods
+                  In today&apos;s digital landscape, various authentication methods
                   are employed by websites to verify user identities. One of the
                   most common methods is the use of email addresses or usernames
                   paired with passwords. This traditional approach requires
@@ -90,8 +90,8 @@ export default function App() {
                   Another prevalent authentication method used on many websites
                   is Single Sign-On (SSO), which allows users to log in to
                   multiple websites or services using a single set of
-                  credentials. Platforms like "Sign in with Google" or "Sign in
-                  with Facebook" leverage SSO functionality, enabling users to
+                  credentials. Platforms like &quot;Sign in with Google&quot; or &quot;Sign in
+                  with Facebook&quot; leverage SSO functionality, enabling users to
                   authenticate themselves quickly and conveniently without the
                   need to create new accounts or remember additional passwords.
                   While SSO offers convenience, it also raises concerns about
@@ -126,11 +126,11 @@ export default function App() {
                   fatigue among users.
                 </p>
                 <p>
-                  Furthermore, the rise of authentication services like "Sign in
-                  with Google" exacerbates the risks associated with compromised
-                  credentials. If a user's email and password are leaked or
+                  Furthermore, the rise of authentication services like &quot;Sign in
+                  with Google&quot; exacerbates the risks associated with compromised
+                  credentials. If a user&apos;s email and password are leaked or
                   stolen, access to all platforms linked to that email address,
-                  including those utilising the "Sign in with Google" feature,
+                  including those utilising the &quot;Sign in with Google&quot; feature,
                   becomes vulnerable. This interconnectedness amplifies the
                   consequences of a security breach, potentially granting
                   unauthorized access to a myriad of online accounts and
@@ -175,13 +175,13 @@ export default function App() {
                 <p>
                   Unlike traditional Single Sign-On (SSO) methods where a
                   compromised email and password can grant access to multiple
-                  platforms, BionicID's facial authentication ensures that even
+                  platforms, BionicID&apos;s facial authentication ensures that even
                   if credentials are stolen, access to other platforms is not
                   compromised.
                 </p>
                 <p>
                   Furthermore, BionicID goes beyond conventional authentication
-                  methods by offering the option to hide users' email addresses.
+                  methods by offering the option to hide users&apos; email addresses.
                   Through the generation of random email addresses for user
                   transactions, BionicID enhances transparency and privacy in
                   online interactions. In an era where users are increasingly
@@ -205,7 +205,7 @@ export default function App() {
                   offers a cutting-edge feature known as Proof of Location
                   Authentication. This innovative capability leverages facial
                   recognition technology along with geolocation data to verify a
-                  user's presence at a specific location, offering a robust
+                  user&apos;s presence at a specific location, offering a robust
                   solution for applications requiring location-based
                   authentication.
                 </p>
