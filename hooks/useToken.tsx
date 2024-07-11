@@ -110,6 +110,18 @@ function useToken() {
     }
     return null;
   };
+  
+  const getLastLoggedIn = () => {
+    if (typeof window !== "undefined") {
+      const tokenString = localStorage.getItem("token");
+      if (tokenString) {
+        const userToken = JSON.parse(tokenString);
+        return userToken?.user.last_logged_in;
+      }
+      return null;
+    }
+    return null;
+  }
 
   const getRole = () => {
     if (typeof window !== "undefined") {
@@ -133,6 +145,7 @@ function useToken() {
   const [dateOfBirth, setDateOfBirth] = useState(getDateOfBirth());
   const [userId, setUserId] = useState(getID());
   const [role, setRole] = useState(getRole());
+  const [lastLoggedIn, setLastLoggedIn] = useState(getLastLoggedIn);
 
   const saveToken = (userToken: any) => {
     localStorage.setItem("token", JSON.stringify(userToken));
@@ -145,6 +158,7 @@ function useToken() {
     setGender(userToken.user.gender);
     setDateOfBirth(userToken.user.date_of_birth);
     setUserId(userToken.user.id);
+    setLastLoggedIn(userToken.user.last_logged_in);
     setRole(userToken.user.role);
   };
 
@@ -159,6 +173,7 @@ function useToken() {
     setGender(null);
     setDateOfBirth(null);
     setUserId(null);
+    setLastLoggedIn(null);
     setRole(null);
     window.location.href = "/";
   };
@@ -174,6 +189,7 @@ function useToken() {
       setGender(getGender());
       setDateOfBirth(getDateOfBirth());
       setUserId(getID());
+      setLastLoggedIn(getLastLoggedIn());
       setRole(getRole());
     };
 
@@ -197,6 +213,7 @@ function useToken() {
     gender,
     dateOfBirth,
     userId,
+    lastLoggedIn,
     role,
   };
 }
