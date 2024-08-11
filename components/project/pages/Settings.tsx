@@ -17,7 +17,7 @@ import {
 } from "@nextui-org/react";
 import { BACKEND_URL } from "@/lib/config";
 
-export default function Settings({ project } : any) {
+export default function Settings({ project }: any) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const deleteProject = async () => {
@@ -28,7 +28,7 @@ export default function Settings({ project } : any) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            project_id: project.project.id,
+          project_id: project.project.id,
         }),
       });
 
@@ -47,16 +47,14 @@ export default function Settings({ project } : any) {
 
   return (
     <section className="w-full h-full gap-5 items-center VStack">
-  
       <section
         id="Toolbar"
         className="VStack md:w-8/12 w-full justify-between pl-2 pr-2"
       >
         <div className="VStack w-full">
           <section className="VStack gap-7 text-sm">
-         
             <ul className="VStack divide-y dark:divide-gray-800 dark:bg-primary-dark bg-primary rounded-lg">
-            <li className="HStack w-full justify-between cursor-pointer pl-5 pr-5 pb-3 pt-3">
+              <li className="HStack w-full justify-between cursor-pointer pl-5 pr-5 pb-3 pt-3">
                 <div className="HStack w-full justify-between items-center">
                   <p>Title</p>
                   <div className="gap-1 HStack opacity-75 items-center">
@@ -101,89 +99,46 @@ export default function Settings({ project } : any) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Remove FacePass Account
+                Remove Project
               </ModalHeader>
               <ModalBody>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                  By choosing to remove a project from the FacePass platform,
+                  you acknowledge and agree that this action is irreversible.
+                  Once a project is deleted, all associated data, including user
+                  information, configurations, and connected platform details,
+                  will be permanently erased from our servers. It is your
+                  responsibility to ensure that any necessary data backups are
+                  made prior to initiating the removal process. FacePass will
+                  not be held liable for any loss of data or disruption of
+                  service that may occur as a result of project deletion.
+                  Additionally, any active integrations or API connections
+                  associated with the removed project will cease to function
+                  immediately.
                 </p>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-                <p>
-                  Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit
-                  duis sit officia eiusmod Lorem aliqua enim laboris do dolor
-                  eiusmod. Et mollit incididunt nisi consectetur esse laborum
-                  eiusmod pariatur proident Lorem eiusmod et. Culpa deserunt
-                  nostrud ad veniam. Lorem ipsum dolor sit amet, consectetur
-                  adipiscing elit. Nullam pulvinar risus non risus hendrerit
-                  venenatis. Pellentesque sit amet hendrerit risus, sed
-                  porttitor quam. Magna exercitation reprehenderit magna aute
-                  tempor cupidatat consequat elit dolor adipisicing. Mollit
-                  dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                  officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et
-                  mollit incididunt nisi consectetur esse laborum eiusmod
-                  pariatur proident Lorem eiusmod et. Culpa deserunt nostrud ad
-                  veniam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-                <p>
-                  Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit
-                  duis sit officia eiusmod Lorem aliqua enim laboris do dolor
-                  eiusmod. Et mollit incididunt nisi consectetur esse laborum
-                  eiusmod pariatur proident Lorem eiusmod et. Culpa deserunt
-                  nostrud ad veniam. Lorem ipsum dolor sit amet, consectetur
-                  adipiscing elit. Nullam pulvinar risus non risus hendrerit
-                  venenatis. Pellentesque sit amet hendrerit risus, sed
-                  porttitor quam. Magna exercitation reprehenderit magna aute
-                  tempor cupidatat consequat elit dolor adipisicing. Mollit
-                  dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                  officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et
-                  mollit incididunt nisi consectetur esse laborum eiusmod
-                  pariatur proident Lorem eiusmod et. Culpa deserunt nostrud ad
-                  veniam.
+                  To remove a project, you must be an authorized administrator
+                  of the FacePass account in question. This policy ensures that
+                  only individuals with the appropriate permissions can initiate
+                  such a significant action. The process involves navigating to
+                  the project management section of the Developer Portal,
+                  selecting the project to be removed, and confirming the
+                  deletion through a two-step verification process. FacePass
+                  reserves the right to log and monitor project removal requests
+                  to maintain security and transparency. If you encounter any
+                  issues during this process, our support team is available to
+                  assist and provide guidance.
                 </p>
               </ModalBody>
               <ModalFooter className="w-full justify-between">
                 <Button variant="light" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="danger" onPress={onClose} onClick={deleteProject}>
+                <Button
+                  color="danger"
+                  onPress={onClose}
+                  onClick={deleteProject}
+                >
                   Erase Entire Project
                 </Button>
               </ModalFooter>

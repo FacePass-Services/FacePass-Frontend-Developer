@@ -25,6 +25,7 @@ const UserSetting = () => {
   const [editedFirstName, setEditedFirstName] = useState(firstName);
   const [editedLastName, setEditedLastName] = useState(lastName);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setEditedFirstName(firstName);
@@ -43,26 +44,34 @@ const UserSetting = () => {
   };
 
   const updateUser = async () => {
-    try {
-      const response = await axios.post(`${BACKEND_URL}/user/update_user`, {
-        email: email,
-        first_name: editedFirstName,
-        last_name: editedLastName,
+    if (!editedFirstName || !editedLastName) {
+      setError("First name and last name cannot be empty");
+      return;
+    }
 
-      }, {
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/user/update_user`,
+        {
+          email: email,
+          first_name: editedFirstName,
+          last_name: editedLastName,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
-  
+      );
+
       const data = response.data;
-  
+
       if (response.status === 200) {
         setIsEditing(false);
         console.log("User updated successfully!", data);
 
         setToken(data);
-  
+
         setEditedFirstName(data.user.first_name);
         setEditedLastName(data.user.last_name);
         window.location.reload();
@@ -89,7 +98,7 @@ const UserSetting = () => {
 
         {role === "dev_lite" && (
           <>
-          <Chip
+            <Chip
               variant="shadow"
               classNames={{
                 base: " bg-gradient-to-l from-teal-400 to-yellow-200 border-small border-white/50 shadow-pink-500/30",
@@ -103,7 +112,7 @@ const UserSetting = () => {
         )}
         {role === "dev_plus" && (
           <>
-          <Chip
+            <Chip
               variant="shadow"
               classNames={{
                 base: "bg-gradient-to-r from-amber-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
@@ -212,6 +221,7 @@ const UserSetting = () => {
                 </div>
               </li>
             </ul>
+            {error && <p className="text-red-500">{error}</p>}
             <div className="VStack w-full">
               <ul className="VStack dark:bg-primary-dark bg-primary rounded-lg">
                 <li className="HStack w-full justify-between cursor-pointer rounded-lg pl-5 pr-5 pb-3 pt-3">
