@@ -30,6 +30,7 @@ interface User {
   email: string;
   gender: string;
   date_of_birth: string;
+  last_login: string;
   phone_number: string;
 }
 
@@ -43,8 +44,9 @@ const columns = [
   { name: "Last Name", uid: "last_name" },
   { name: "Email", uid: "email" },
   { name: "Gender", uid: "gender" },
-  { name: "Date of Birth", uid: "date_of_birth" },
-  { name: "Phone Number", uid: "phone_number" },
+  // { name: "Date of Birth", uid: "date_of_birth" },
+  // { name: "Phone Number", uid: "phone_number" },
+  { name: 'Last Login', uid: 'last_login'},
   { name: "Actions", uid: "actions" },
 ];
 
