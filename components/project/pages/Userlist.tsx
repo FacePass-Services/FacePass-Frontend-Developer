@@ -179,7 +179,7 @@ const UserList: React.FC<Props> = ({ users, project_id }) => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Remove FacePass Account
+                Remove User From the Project
               </ModalHeader>
               <ModalBody>
                 <p>

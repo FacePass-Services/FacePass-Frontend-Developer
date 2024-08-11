@@ -172,7 +172,7 @@ const App: React.FC<ToolsBarProps> = ({isHome}) => {
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         className="sm:hidden"
       />
-      <NavbarMenu className="">
+      <NavbarMenu className="bg-secondary dark:bg-secondary-dark">
         <NavbarMenuItem>
           <Link
             className="w-full text-black dark:text-white"
