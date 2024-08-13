@@ -41,11 +41,28 @@ export default function App() {
   const [emailError, setEmailError] = useState("");
   const [isFaceSign, setIsFaceSign] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
+  const [faceOrientation, setFaceOrientation] = useState<string | null>(null);
 
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [isGetStarted, setIsGetStarted] = useState(false);
+
+  const [faceUp, setFaceUp] = useState(false);
+  const [faceDown, setFaceDown] = useState(false);
+  const [faceLeft, setFaceLeft] = useState(false);
+  const [faceRight, setFaceRight] = useState(false);
+
+  const getBorderClass = () => {
+    const borderClasses = [];
+    if (faceUp) borderClasses.push("border-t-8 border-solid border-blue-500");
+    if (faceDown) borderClasses.push("border-b-8 border-solid border-blue-500");
+    if (faceLeft) borderClasses.push("border-l-8 border-solid border-blue-500");
+    if (faceRight)
+      borderClasses.push("border-r-8 border-solid border-blue-500");
+    return borderClasses.join(" ");
+  };
+  const isButtonDisabled = !(faceUp && faceDown && faceLeft && faceRight);
 
   const formatDate = (date: any) => moment(date).format("MM/DD/YYYY");
 
@@ -63,29 +80,154 @@ export default function App() {
         faceapi.nets.faceLandmark68Net.loadFromUri(
           "/models/face_landmark_68_model-weights_manifest.json"
         ),
+        faceapi.nets.ssdMobilenetv1.loadFromUri(
+          "/models/ssd_mobilenetv1_model-weights_manifest.json"
+        ), // Ensure the SSD model is loaded
       ]);
 
       // Start face detection
       detectFace();
     } catch (error) {
-      console.error("Error accessing the camera:", error);
+      console.error("Error accessing the camera or loading models:", error);
+    }
+  };
+  // const detectFace = async () => {
+  //   if (videoRef.current) {
+  //     const detections = await faceapi
+  //       .detectSingleFace(videoRef.current)
+  //       .withFaceLandmarks();
+
+  //     if (detections) {
+  //       setFaceDetected(true);
+  //       const { landmarks } = detections;
+  //       const nose = landmarks.getNose();
+  //       const leftEye = landmarks.getLeftEye();
+  //       const rightEye = landmarks.getRightEye();
+  //       const mouth = landmarks.getMouth();
+
+  //       if (nose && leftEye && rightEye && mouth) {
+  //         const noseX = nose[3].x;
+  //         const leftEyeX = leftEye[0].x;
+  //         const rightEyeX = rightEye[3].x;
+  //         const noseY = nose[3].y;
+  //         const leftEyeY = leftEye[1].y;
+  //         const rightEyeY = rightEye[1].y;
+  //         const mouthY = mouth[6].y;
+  //         const averageEyeY = (leftEyeY + rightEyeY) / 2;
+
+  //         let orientation: string;
+
+  //         if (noseX > 350) {
+  //           orientation = "left";
+  //           setFaceLeft(true);
+  //         } else if (noseX < 300) {
+  //           orientation = "right";
+  //           setFaceRight(true);
+  //         } else if (noseY < 220) {
+  //           orientation = "up";
+  //           setFaceUp(true);
+  //         } else if (noseY > 280) {
+  //           orientation = "down";
+  //           setFaceDown(true);
+  //         } else {
+  //           orientation = "center";
+  //         }
+  //       }
+  //     }
+  //   }
+  // };
+  const detectFace = async () => {
+    if (videoRef.current) {
+      const detections = await faceapi
+        .detectSingleFace(videoRef.current)
+        .withFaceLandmarks();
+
+      if (detections) {
+        setFaceDetected(true);
+        const { landmarks } = detections;
+        const nose = landmarks.getNose();
+        const leftEye = landmarks.getLeftEye();
+        const rightEye = landmarks.getRightEye();
+
+        if (nose && leftEye && rightEye) {
+          // Get the positions of key landmarks
+          const nosePosition = { x: nose[3].x, y: nose[3].y };
+          const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
+          const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
+
+          // Function to calculate distance between two points
+          const distance = (p1, p2) =>
+            Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+
+          // Calculate distances
+          const distLeftEyeToNose = distance(leftEyePosition, nosePosition);
+          const distRightEyeToNose = distance(rightEyePosition, nosePosition);
+          const distLeftEyeToRightEye = distance(
+            leftEyePosition,
+            rightEyePosition
+          );
+
+          // Function to calculate the area of a triangle given its side lengths
+          const triangleArea = (a, b, c) => {
+            const s = (a + b + c) / 2; // semi-perimeter
+            return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+          };
+
+          // Calculate the area of the triangle
+          const area = triangleArea(
+            distLeftEyeToNose,
+            distRightEyeToNose,
+            distLeftEyeToRightEye
+          );
+
+          // Log details of the triangle
+          // console.log(`Distances:`);
+          // console.log(`Left Eye to Nose: ${distLeftEyeToNose.toFixed(2)}`);
+          // console.log(`Right Eye to Nose: ${distRightEyeToNose.toFixed(2)}`);
+          // console.log(
+          //   `Left Eye to Right Eye: ${distLeftEyeToRightEye.toFixed(2)}`
+          // );
+          // console.log(`Triangle Area: ${area.toFixed(2)}`);
+
+          // Determine face orientation based on distances and area
+          let orientation: string;
+
+          if (distLeftEyeToNose > distRightEyeToNose + 10) {
+            orientation = "left";
+            setFaceLeft(true);
+          } else if (distRightEyeToNose > distLeftEyeToNose + 10) {
+            orientation = "right";
+            setFaceRight(true);
+          } else if (area < 2000) {
+            orientation = "up";
+            setFaceUp(true);
+          } else if (area > 3000) {
+            orientation = "down";
+            setFaceDown(true);
+          } else {
+            orientation = "center";
+          }
+
+          console.log(`Face orientation: ${orientation}`);
+        }
+      }
     }
   };
 
-  const detectFace = async () => {
-    if (videoRef.current) {
-      const detections = await faceapi.detectSingleFace(
-        videoRef.current,
-        new faceapi.TinyFaceDetectorOptions()
-      );
-      if (detections) {
-        setFaceDetected(true);
-        console.log("Face detected:", detections);
-      } else {
-        setFaceDetected(false);
-        console.log("No face detected");
-      }
+  useEffect(() => {
+    // Log the face orientation whenever it changes
+    console.log("Face Detected:", faceDetected);
+    console.log("Face Up:", faceUp);
+    console.log("Face Down:", faceDown);
+    console.log("Face Left:", faceLeft);
+    console.log("Face Right:", faceRight);
+  }, [faceDetected, faceUp, faceDown, faceLeft, faceRight]);
+
+  const getBlurClass = () => {
+    if (faceUp && faceDown && faceLeft && faceRight) {
+      return "opcity-25";
     }
+    return "";
   };
 
   const stopCamera = () => {
@@ -108,9 +250,13 @@ export default function App() {
   };
 
   const cancel = () => {
-    setIsFaceSign(false);
     stopCamera();
+    setIsFaceSign(false);
     setIsGetStarted(false);
+    setFaceDown(false);
+    setFaceUp(false);
+    setFaceLeft(false);
+    setFaceRight(false);
   };
 
   const signUp = async () => {
@@ -194,7 +340,6 @@ export default function App() {
       videoRef.current.srcObject = videoStream;
       videoRef.current.play();
 
-      // Check face every 1 second
       const intervalId = setInterval(() => {
         detectFace();
       }, 1000);
@@ -344,20 +489,32 @@ export default function App() {
               {isGetStarted ? (
                 <>
                   <p className="font-semibold text-3xl">
-                    {faceDetected ? "Move your head slowly to complete circle" : "Reposition Your Face Within the Frame."}
+                    {faceDetected
+                      ? "Move your head slowly to complete circle"
+                      : "Reposition Your Face Within the Frame."}
                   </p>
-                  <p>Move your face within the frame.</p>
+                  {/* <p className="font-semibold text-lg">
+                    {faceDetected
+                      ? faceUp
+                        ? "Your face is now: Up"
+                        : faceDown
+                        ? "Your face is now: Down"
+                        : faceLeft
+                        ? "Your face is now: Left"
+                        : faceRight
+                        ? "Your face is now: Right"
+                        : "Your face is now: Center"
+                      : "Reposition Your Face Within the Frame."}
+                  </p> */}
                   <div
-                    className={`relative w-64 h-64 bg-gray-200 transition-all duration-500 ${
-                      faceDetected
-                        ? "rounded-full border-4 border-green-500"
-                        : "rounded-lg"
-                    }`}
+                    className={`relative w-80 h-80  ${getBlurClass()} transition-all duration-500 `}
                   >
                     <video
                       ref={videoRef}
                       className={`absolute w-full h-full object-cover ${
-                        faceDetected ? "rounded-full" : "rounded-lg"
+                        faceDetected
+                          ? `rounded-full ${getBorderClass()}`
+                          : "rounded-lg"
                       }`}
                     />
                   </div>
@@ -387,7 +544,7 @@ export default function App() {
                 </Button>
               ) : (
                 <Button
-                  isDisabled
+                  isDisabled={isButtonDisabled}
                   className="mt-4 text-white text-base font-medium bg-blue-500 pt-6 pb-6 pl-32 pr-32"
                 >
                   Continue
@@ -406,7 +563,7 @@ export default function App() {
         </>
       )}
       <Modal
-        className=" w-96 h-48"
+        className="w-96 h-48"
         placement="center"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -414,7 +571,7 @@ export default function App() {
         <ModalContent>
           <ModalBody className="VStack w-full h-full justify-center gap-5 items-center">
             <div className="VStack w-full pt-5 gap-3">
-              <p className="text-semibold text-lg"> Set Up FacePass</p>
+              <p className="text-semibold text-lg">Set Up FacePass</p>
               <p className="opacity-75">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos,
                 quod?
@@ -436,4 +593,3 @@ export default function App() {
     </>
   );
 }
-;
