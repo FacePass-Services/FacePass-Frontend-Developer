@@ -42,7 +42,7 @@ jobs:
               with:
                   host: ${{ secrets.HOST_SERVER }}
                   username: ${{ secrets.HOST_USERNAME }}
-                  password: ${{ secrets.HOST_PASSWORD }}
+                  key: ${{ secrets.SSH_PRIVATEKEY }}
                   port: 22
                   source: 'docker-compose.yml'
                   target: '/home/action/facepass-frontend'
@@ -51,7 +51,7 @@ jobs:
               with:
                   host: ${{ secrets.HOST_SERVER }}
                   username: ${{ secrets.HOST_USERNAME }}
-                  password: ${{ secrets.HOST_PASSWORD }}
+                  key: ${{ secrets.SSH_PRIVATEKEY }}
                   port: 22
                   script: |
                       export DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
