@@ -19,7 +19,11 @@ import {
 import useToken from "@/hooks/useToken";
 import { GoChevronDown } from "react-icons/go";
 
-export default function App() {
+type ToolsBarProps = {
+  isHome?: boolean;
+};
+
+const App: React.FC<ToolsBarProps> = ({isHome}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isLoggedIn, logout, username } = useToken();
   const [clientSide, setClientSide] = useState(false);
@@ -46,7 +50,7 @@ export default function App() {
 
   return (
     <Navbar
-      className={isScrolled || isMenuOpen ? "" : "bg-transparent"}
+      className={isHome ? "bg-secondary dark:bg-secondary-dark" : isScrolled || isMenuOpen ? "bg-secondary dark:bg-secondary-dark shadow-md" : "bg-transparent"}
       maxWidth="2xl"
       onMenuOpenChange={setIsMenuOpen}
     >
@@ -168,7 +172,7 @@ export default function App() {
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         className="sm:hidden"
       />
-      <NavbarMenu className="">
+      <NavbarMenu className="bg-secondary dark:bg-secondary-dark">
         <NavbarMenuItem>
           <Link
             className="w-full text-black dark:text-white"
@@ -259,3 +263,5 @@ export default function App() {
     </Navbar>
   );
 }
+
+export default App

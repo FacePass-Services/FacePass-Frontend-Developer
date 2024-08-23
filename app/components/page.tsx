@@ -82,7 +82,7 @@ export default function App() {
                   <p className="opacity-45">
                     You can easily install FacePass from NPM.
                   </p>
-                  <Code>import FacePass from '@facepass'</Code>
+                  <Code>import FacePass from &apos;@facepass&apos;</Code>
                 </div>
                 <div className="HSection-break dark:bg-white"></div>
 
@@ -91,7 +91,7 @@ export default function App() {
                   <p className="opacity-45">
                     You can easily install FacePass from NPM.
                   </p>
-                  <Code>requests = ["fullname", "age", "email", "phone"]</Code>
+                  <Code>requests = [&quot;fullname&quot;, &quot;age&quot;, &quot;email&quot;, &apos;phone&quot;]</Code>
                 </div>
                 <div className="HSection-break dark:bg-white"></div>
 

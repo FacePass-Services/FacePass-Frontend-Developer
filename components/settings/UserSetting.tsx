@@ -5,6 +5,9 @@ import { CiEdit } from "react-icons/ci";
 import { MdDownloadDone } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
 import useToken from "@/hooks/useToken";
+import { Chip } from "@nextui-org/react";
+import { BACKEND_URL } from "@/lib/config";
+import axios from "axios";
 
 const UserSetting = () => {
   const {
@@ -21,21 +24,13 @@ const UserSetting = () => {
 
   const [editedFirstName, setEditedFirstName] = useState(firstName);
   const [editedLastName, setEditedLastName] = useState(lastName);
-  const [editedDOB, setEditedDOB] = useState(dateOfBirth);
-  const [editedGender, setEditedGender] = useState(gender);
-  const [editedPhone, setEditedPhone] = useState(phoneNumber);
-  const [editedEmail, setEditedEmail] = useState(email);
   const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setEditedFirstName(firstName);
     setEditedLastName(lastName);
-    setEditedDOB(dateOfBirth);
-    setEditedGender(gender);
-    setEditedPhone(phoneNumber);
-    setEditedEmail(email);
-  }, [firstName, lastName, dateOfBirth, gender, phoneNumber, email]);
-console.log(role);
+  }, [firstName, lastName]);
 
   const profileImg =
     "https://static.vecteezy.com/system/resources/thumbnails/018/742/015/small_2x/minimal-profile-account-symbol-user-interface-theme-3d-icon-rendering-illustration-isolated-in-transparent-background-png.png";
@@ -49,36 +44,36 @@ console.log(role);
   };
 
   const updateUser = async () => {
+    if (!editedFirstName || !editedLastName) {
+      setError("First name and last name cannot be empty");
+      return;
+    }
+
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/update_user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        `${BACKEND_URL}/user/update_user`,
+        {
           email: email,
           first_name: editedFirstName,
           last_name: editedLastName,
-          // Add other fields to update here as needed
-        }),
-      });
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (response.ok) {
+      if (response.status === 200) {
         setIsEditing(false);
         console.log("User updated successfully!", data);
 
-        // Update local storage and state using saveToken
         setToken(data);
 
-        // Optionally update the state variables directly if necessary
         setEditedFirstName(data.user.first_name);
         setEditedLastName(data.user.last_name);
-        setEditedDOB(data.user.date_of_birth);
-        setEditedGender(data.user.gender);
-        setEditedPhone(data.user.phone_number);
-        setEditedEmail(data.user.email);
         window.location.reload();
       } else {
         console.error("Error updating user:", data.message);
@@ -97,10 +92,52 @@ console.log(role);
         {role === "user" && (
           <p className="text-base opacity-75">FacePass Account</p>
         )}
-  {(role === "dev_plus" || role === "dev_pro" || role === "dev_lite") && (
-  <p className="text-base opacity-75">Developer Account</p>
-)}
+        {(role === "dev_plus" || role === "dev_pro" || role === "dev_lite") && (
+          <p className="text-base opacity-75">Developer Account</p>
+        )}
 
+        {role === "dev_lite" && (
+          <>
+            <Chip
+              variant="shadow"
+              classNames={{
+                base: " bg-gradient-to-l from-teal-400 to-yellow-200 border-small border-white/50 shadow-pink-500/30",
+                content: "drop-shadow shadow-black text-white",
+              }}
+            >
+              {" "}
+              Lite
+            </Chip>
+          </>
+        )}
+        {role === "dev_plus" && (
+          <>
+            <Chip
+              variant="shadow"
+              classNames={{
+                base: "bg-gradient-to-r from-amber-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                content: "drop-shadow shadow-black text-white",
+              }}
+            >
+              {" "}
+              Plus
+            </Chip>
+          </>
+        )}
+        {role === "dev_pro" && (
+          <>
+            <Chip
+              variant="shadow"
+              classNames={{
+                base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
+                content: "drop-shadow shadow-black text-white",
+              }}
+            >
+              {" "}
+              Pro
+            </Chip>
+          </>
+        )}
       </div>
 
       {/* Input fields for editing user information */}
@@ -184,6 +221,7 @@ console.log(role);
                 </div>
               </li>
             </ul>
+            {error && <p className="text-red-500">{error}</p>}
             <div className="VStack w-full">
               <ul className="VStack dark:bg-primary-dark bg-primary rounded-lg">
                 <li className="HStack w-full justify-between cursor-pointer rounded-lg pl-5 pr-5 pb-3 pt-3">
@@ -244,11 +282,9 @@ console.log(role);
                     <p>Phone Number</p>
                     <div className="gap-1 HStack opacity-75 items-center">
                       {isEditing ? (
-                          <div className="HStack opacity-25 items-center gap-1">
+                        <div className="HStack opacity-25 items-center gap-1">
                           {" "}
-                          <p className="">
-                            {phoneNumber}
-                          </p>
+                          <p className="">{phoneNumber}</p>
                           <IoLockClosed />
                         </div>
                       ) : (
@@ -265,13 +301,11 @@ console.log(role);
                     <p>Email Address</p>
                     <div className="gap-1 HStack opacity-75 items-center">
                       {isEditing ? (
-                           <div className="HStack opacity-25 items-center gap-1">
-                           {" "}
-                           <p className="">
-                             {email}
-                           </p>
-                           <IoLockClosed />
-                         </div>
+                        <div className="HStack opacity-25 items-center gap-1">
+                          {" "}
+                          <p className="">{email}</p>
+                          <IoLockClosed />
+                        </div>
                       ) : (
                         <>
                           <p>{email}</p>
@@ -283,9 +317,10 @@ console.log(role);
                 </li>
               </ul>
               {isEditing && (
- <p className="pt-2 opacity-25 text-xs pl-2">
- According to TF3949 Information cannot be change in 1.0 Beta 1b
-</p>
+                <p className="pt-2 opacity-25 text-xs pl-2">
+                  According to TF3949 Information cannot be change in 1.0 Beta
+                  1b
+                </p>
               )}
             </div>
           </section>

@@ -1,15 +1,28 @@
 "use client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Input, Button, Checkbox } from "@nextui-org/react";
+import { TiThSmall } from "react-icons/ti";
+import { FaGear } from "react-icons/fa6";
+import { GoChevronDown } from "react-icons/go";
+import { IoLogoFlickr } from "react-icons/io";
+import { LuChevronsUpDown } from "react-icons/lu";
 import { BsChevronExpand } from "react-icons/bs";
+import { IoCodeWorkingSharp } from "react-icons/io5";
 import { MdWork } from "react-icons/md";
 import { BsChevronDown } from "react-icons/bs";
 import { BsChevronUp } from "react-icons/bs";
 import { IoMdSettings } from "react-icons/io";
+// import { columns, users } from "@/database/data";
+import { MdEdit } from "react-icons/md";
 import { IoTrashBinSharp } from "react-icons/io5";
+import ProjectSettings from "@/components/project/pages/Settings";
+import Overview from "@/components/project/pages/Overview";
+import UserList from "@/components/project/pages/Userlist"
+
+
 
 // dashboard
 import {
@@ -28,7 +41,7 @@ const statusColorMap = {
   active: "success",
   deactive: "danger",
 };
-
+import ProjectBar from "@/components/project/ToolsBar";
 import {
   Dropdown,
   DropdownTrigger,
@@ -42,35 +55,10 @@ import { IoIosInformationCircle } from "react-icons/io";
 import { IoFilterOutline } from "react-icons/io5";
 import { User } from "@nextui-org/react";
 import useToken from "@/hooks/useToken";
+import { env } from "process";
+import { BACKEND_URL } from "@/lib/config";
 
-const users = [
-  // Example user data
-  {
-    id: 1,
-    first_name: "John",
-    last_name: "Doe",
-    email: "john.doe@example.com",
-    gender: "male",
-    date_of_birth: "1990-01-01",
-    phone_number: "+1234567890",
-    role: "admin",
-    // status: "active",
-    team: "Team A"
-  },
-  {
-    id: 2,
-    first_name: "Jane",
-    last_name: "Smith",
-    email: "jane.smith@example.com",
-    gender: "female",
-    date_of_birth: "1995-05-15",
-    phone_number: "+9876543210",
-    role: "user",
-    // status: "inactive",
-    team: "Team B"
-  }
 
-];
 
 const columns = [
   { name: "First Name", uid: "first_name" },
@@ -79,43 +67,54 @@ const columns = [
   { name: "Gender", uid: "gender" },
   { name: "Date of Birth", uid: "date_of_birth" },
   { name: "Phone Number", uid: "phone_number" },
-  // { name: "Role", uid: "role" },
-  // { name: "Status", uid: "status" },
-  { name: "Actions", uid: "actions" }
+
+  { name: "Actions", uid: "actions" },
 ];
 
 
-
-export default function Home({params}: any) {
+export default function Home({ params }: any) {
   const router = useRouter();
-  const [selectedItem, setSelectedItem] = useState("dashboard");
+  const [selectedItem, setSelectedItem] = useState("customers");
   const [showFilesContent, setShowFilesContent] = useState(false); // State to toggle visibility of Files content
   const [users, setUsers] = useState([]);
-  const project_id = params.project_id.toString()
-  const {username} = useToken();
-  const [isClient, setIsClient] = useState(false)
- 
-  console.log(params.project_id);
-  
+  const [projectEntire, setProjectEntire] = useState([]);
+
+  const project_id = params.project_id.toString();
+  const { username } = useToken();
+  const [isClient, setIsClient] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowModal(true);
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
   useEffect(() => {
     if (!project_id) return;
 
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/project/get_user_list?project_id=${project_id}`);
+        const res = await axios.get(
+          `${BACKEND_URL}/project/get_user_list?project_id=${project_id}`
+        );
         if (res.status === 200) {
           setUsers(res.data.folder.users);
+          setProjectEntire(res.data.folder);
         } else {
           console.error(`Error: Received status code ${res.status}`);
         }
-      } catch (e:any) {
-        console.error('Fetching Error:', e.response ? e.response.data : e.message);
+      } catch (e: any) {
+        console.error(
+          "Fetching Error:",
+          e.response ? e.response.data : e.message
+        );
       }
     };
-    setIsClient(true)
+    setIsClient(true);
     fetchData();
   }, [project_id]);
-  
+
   const handleItemClick = (item: any) => {
     if (item === "file") {
       // Toggle visibility of Files content
@@ -129,10 +128,9 @@ export default function Home({params}: any) {
     }
   };
 
-  
   //table
 
-  const renderCell = React.useCallback((user, columnKey) => {
+  const renderCell = React.useCallback((user: any, columnKey: any) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
@@ -141,8 +139,7 @@ export default function Home({params}: any) {
           <div className="flex flex-col">
             <p className="text-bold text-sm capitalize">{cellValue}</p>
             {/* Assuming user has a team property */}
-            <p className="text-bold text-sm capitalize text-default-400">
-            </p>
+            <p className="text-bold text-sm capitalize text-default-400"></p>
           </div>
         );
       // case "status":
@@ -173,15 +170,19 @@ export default function Home({params}: any) {
   }, []);
 
 
+
+
+
   return (
     <main className="VStack w-screen min-h-screen items-center">
+      <ProjectBar projectEntire={projectEntire} />
       <div className="HStack w-full  h-full  pl-7 pr-7 ">
         <section
           id="Toolbar"
-          className="VStack w-2/12 h-full justify-between max-w-[300px] pl-2 pr-2"
+          className="VStack min-h-[90vh] w-2/12 h-full justify-between max-w-[300px] pl-2 pr-2"
         >
           <div className="VStack w-full">
-            <Dropdown>
+            {/* <Dropdown>
               <DropdownTrigger>
                 <div className="HStack cursor-pointer justify-between items-center h-20">
                   <div className="HStack gap-3 items-center">
@@ -236,13 +237,13 @@ export default function Home({params}: any) {
                   </DropdownItem>
                 </DropdownSection>
               </DropdownMenu>
-            </Dropdown>
+            </Dropdown> */}
 
-            <div className="w-full h-1 border-t-1 mb-3 border-opacity-25 border-dashed border-black dark:border-white dark:border-opacity-25"></div>
+            <div className="w-full h-1 mb-3 "></div>
             <section className="VStack gap-7 text-[12px]">
               <ul className="VStack gap-2  ">
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "dashboard"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -250,16 +251,16 @@ export default function Home({params}: any) {
                   onClick={() => handleItemClick("dashboard")}
                 >
                   <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
+                    <TiThSmall className="text-xl" />
 
-                    <p>Dashboard</p>
+                    <p>Overview</p>
                   </div>
                   <p></p>
                 </li>
               </ul>
               <ul className="VStack gap-2 ">
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "products"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -273,7 +274,7 @@ export default function Home({params}: any) {
                   <p></p>
                 </li>
                 <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                     selectedItem === "customers"
                       ? "bg-white dark:bg-black font-semibold  shadow-sm"
                       : ""
@@ -281,39 +282,13 @@ export default function Home({params}: any) {
                   onClick={() => handleItemClick("customers")}
                 >
                   <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
-                    <p>Customers</p>
+                    <FaCircleUser className="text-xl" />
+                    <p>Users</p>
                   </div>
                   <p></p>
                 </li>
-                <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
-                    selectedItem === "orders"
-                      ? "bg-white dark:bg-black font-semibold  shadow-sm"
-                      : ""
-                  }`}
-                  onClick={() => handleItemClick("orders")}
-                >
-                  <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
-                    <p>Orders</p>
-                  </div>
-                  <p>1</p>
-                </li>
-                <li
-                  className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
-                    selectedItem === "secret"
-                      ? "bg-white dark:bg-black font-semibold  shadow-sm"
-                      : ""
-                  }`}
-                  onClick={() => handleItemClick("secret")}
-                >
-                  <div className="HStack gap-2 items-center">
-                    <IoFolderOpenSharp className="w-5 h-5 aspect-square" />
-                    <p>Secret</p>
-                  </div>
-                  <p></p>
-                </li>
+               
+               
               </ul>
               <section
                 className={`VStack justify-between items-center cursor-pointer `}
@@ -324,14 +299,14 @@ export default function Home({params}: any) {
                   }`}
                   onClick={() => handleItemClick("file")}
                 >
-                  <p>Files</p>
+                  <p>Advances</p>
                   {showFilesContent ? <BsChevronUp /> : <BsChevronDown />}
                 </div>
 
                 {showFilesContent && (
                   <ul className={`VStack gap-2 w-full`}>
                     <li
-                      className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                      className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                         selectedItem === "a"
                           ? "bg-white dark:bg-black font-semibold  shadow-sm"
                           : ""
@@ -345,7 +320,7 @@ export default function Home({params}: any) {
                       <p></p>
                     </li>
                     <li
-                      className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                      className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                         selectedItem === "b"
                           ? "bg-white dark:bg-black font-semibold  shadow-sm"
                           : ""
@@ -367,7 +342,7 @@ export default function Home({params}: any) {
           <div className="VStack gap-7 text-[12px]">
             <ul className={`VStack gap-2 w-full`}>
               <li
-                className={`HStack justify-between cursor-pointer rounded-lg pl-3 pr-3 pb-2 pt-2 ${
+                className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
                   selectedItem === "setting"
                     ? "bg-white dark:bg-black font-semibold  shadow-sm"
                     : ""
@@ -376,7 +351,7 @@ export default function Home({params}: any) {
               >
                 <div className="HStack gap-2 items-center">
                   <IoMdSettings className="w-5 h-5 aspect-square" />
-                  <p>Setting</p>
+                  <p>Settings</p>
                 </div>
                 <p></p>
               </li>
@@ -385,133 +360,22 @@ export default function Home({params}: any) {
             </ul>{" "}
           </div>
         </section>
-        <section id="Stage" className="pl-5 w-10/12 VStack ">
-          <div className=" h-20 w-full">
-            <div className="HStack h-full gap-2 items-center">
-              {/* <FaCircleUser className="w-12 h-12 aspect-square" />
-
-              <div className="VStack justify-start items-start">
-                <p className="gap-2 font-semibold text-lg">
-                  Hi there, <span className="font-bold"> Kong</span>
-                </p>
-                <p className="text-md opacity-75">Monday, 11 November</p>
-              </div> */}
-              {isClient &&
-                <User
-                name={username}
-                description="Software Engineer"
-                avatarProps={{
-                  src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-                }}
-                />
-              }
-            </div>
-          </div>
+        <section id="Stage" className="pl-5 mt-5 w-10/12 VStack ">
           {selectedItem && (
             <div>
               {/* Render content based on the selected item */}
-              {selectedItem === "dashboard" && (
-                <section className="VStack w-full h-full  gap-4">
-                  <div className="grid grid-cols-4 gap-4 ">
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                      <p className="opacity-75 text-xs">Sales</p>
-                      <div className="VStack">
-                        <p className="text-lg font-semibold">$6,678.86</p>
-                        <p className="opacity-75 text-sm">
-                          +2.3% than last month
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">
-                    <div className="VStack">
-                      <div className="HStack justify-between">
-                        <p className="font-semibold HStack items-center gap-2">
-                          Performance
-                          <span className=" opacity-70">
-                            <IoIosInformationCircle />
-                          </span>
-                        </p>
-                        <Button
-                          variant="bordered"
-                          className="HStack gap-3 border-gray-500 border-opacity-25"
-                        >
-                          <IoFilterOutline />
-                          <p>Filters</p>
-                        </Button>{" "}
-                      </div>
-                      <p className="text-xs opacity-70">Real time updates</p>
-                    </div>
-
-                    <p className="text-2xl font-semibold">$6,678.86</p>
-                    <div className=" w-full HStack items-start justify-start">
-                      <img
-                        src="https://datavizproject.com/wp-content/uploads/types/Line-Graph.png"
-                        alt=""
-                        className="h-[400px] object-contain"
-                      />
-                    </div>
-                  </div>
-                </section>
-              )}
+              {selectedItem === "dashboard" && <Overview />}
               {selectedItem === "products" && <p>Products Content</p>}
               {selectedItem === "customers" && (
-                <section>
-                  <Table aria-label="User Table">
-                    <TableHeader columns={columns}>
-                      {(column) => (
-                        <TableColumn
-                          key={column.uid}
-                          align={column.uid === "actions" ? "center" : "start"}
-                        >
-                          {column.name}
-                        </TableColumn>
-                      )}
-                    </TableHeader>
-                    <TableBody items={users}>
-                      {(item) => (
-                        <TableRow key={item.id}>
-                          {(columnKey) => (
-                            <TableCell>{renderCell(item, columnKey)}</TableCell>
-                          )}
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </section>
+              <UserList project_id={project_id} users={users} />
               )}
               {selectedItem === "orders" && <p>Orders Content</p>}
               {selectedItem === "secret" && <p>Secret Content</p>}
               {selectedItem === "a" && <p>a Content</p>}
               {selectedItem === "b" && <p>b Content</p>}
-              {selectedItem === "setting" && <p>setting</p>}
+              {selectedItem === "setting" && (
+                <ProjectSettings project={projectEntire} />
+              )}
             </div>
           )}
         </section>

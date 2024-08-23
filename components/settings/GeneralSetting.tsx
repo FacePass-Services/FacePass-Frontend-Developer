@@ -15,6 +15,7 @@ import {
   RadioGroup,
   Radio,
 } from "@nextui-org/react";
+import { BACKEND_URL } from "@/lib/config";
 
 export default function General() {
   const { email, logout } = useToken();
@@ -22,7 +23,7 @@ export default function General() {
 
   const deleteuser = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/user/delete_user", {
+      const response = await fetch(`${BACKEND_URL}/user/delete_user`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -50,49 +51,12 @@ export default function General() {
 
   return (
     <section className="w-full h-full gap-5 items-center VStack">
-      {/* User information display */}
-
-      {/* Input fields for editing user information */}
       <section
         id="Toolbar"
         className="VStack md:w-8/12 w-full justify-between pl-2 pr-2"
       >
         <div className="VStack w-full">
           <section className="VStack gap-7 text-sm">
-            {/* {isEditing ? (
-              <>
-                <div className="HStack items-center  w-full justify-between">
-                  <Link
-                    onClick={updateCancel}
-                    className=" cursor-pointer text-blue-500   HStack"
-                  >
-                    {" "}
-                    Cancel
-                  </Link>
-                  <Button
-                    onClick={updateUser}
-                    className="gap-3 items-center text-black dark:text-white bg-primary dark:bg-primary-dark HStack"
-                  >
-                    {" "}
-                    <MdDownloadDone />
-                    Done
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <div className="HStack  w-full justify-end">
-                <Button
-                  onClick={handleEditMode}
-                  className="gap-3 text-black dark:text-white bg-primary dark:bg-primary-dark HStack"
-                >
-                  {" "}
-                  <CiEdit />
-                  Edit
-                </Button>
-              </div>
-            )} */}
-
-            {/* First name input section */}
             <ul className="VStack divide-y dark:divide-gray-800 dark:bg-primary-dark bg-primary rounded-lg">
               <li className="HStack w-full justify-between cursor-pointer pl-5 pr-5 pb-3 pt-3">
                 <div className="HStack w-full justify-between items-center">
@@ -118,19 +82,18 @@ export default function General() {
             <div className="w-full">
               <ul className="VStack dark:bg-primary-dark bg-primary rounded-lg">
                 <li className="HStack w-full justify-between cursor-pointer rounded-lg pl-5 pr-5 pb-3 pt-3">
-                  <button onClick={onOpen} className="HStack text-red-500 w-full justify-between items-center">
+                  <button
+                    onClick={onOpen}
+                    className="HStack text-red-500 w-full justify-between items-center"
+                  >
                     <p>Erase All Data</p>
                   </button>
                 </li>
-          
               </ul>
             </div>
           </section>
         </div>
       </section>
-
-
-
 
       <Modal
         isOpen={isOpen}
@@ -145,78 +108,26 @@ export default function General() {
               </ModalHeader>
               <ModalBody>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-                <p>
-                  Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit
-                  duis sit officia eiusmod Lorem aliqua enim laboris do dolor
-                  eiusmod. Et mollit incididunt nisi consectetur esse laborum
-                  eiusmod pariatur proident Lorem eiusmod et. Culpa deserunt
-                  nostrud ad veniam. Lorem ipsum dolor sit amet, consectetur
-                  adipiscing elit. Nullam pulvinar risus non risus hendrerit
-                  venenatis. Pellentesque sit amet hendrerit risus, sed
-                  porttitor quam. Magna exercitation reprehenderit magna aute
-                  tempor cupidatat consequat elit dolor adipisicing. Mollit
-                  dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                  officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et
-                  mollit incididunt nisi consectetur esse laborum eiusmod
-                  pariatur proident Lorem eiusmod et. Culpa deserunt nostrud ad
-                  veniam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat
-                  consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex
-                  incididunt cillum quis. Velit duis sit officia eiusmod Lorem
-                  aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem
-                  eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-                <p>
-                  Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit
-                  duis sit officia eiusmod Lorem aliqua enim laboris do dolor
-                  eiusmod. Et mollit incididunt nisi consectetur esse laborum
-                  eiusmod pariatur proident Lorem eiusmod et. Culpa deserunt
-                  nostrud ad veniam. Lorem ipsum dolor sit amet, consectetur
-                  adipiscing elit. Nullam pulvinar risus non risus hendrerit
-                  venenatis. Pellentesque sit amet hendrerit risus, sed
-                  porttitor quam. Magna exercitation reprehenderit magna aute
-                  tempor cupidatat consequat elit dolor adipisicing. Mollit
-                  dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                  officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et
-                  mollit incididunt nisi consectetur esse laborum eiusmod
-                  pariatur proident Lorem eiusmod et. Culpa deserunt nostrud ad
-                  veniam.
+                  Developers on the FacePass Developer Platform
+                  (Developer.facepass.net) must ensure they have legitimate
+                  reasons for removing a User from a project, such as violations
+                  of terms, inactivity, or security concerns, and must notify
+                  Users, providing reasons and relevant documentation. Users
+                  have the right to receive a notification about their removal,
+                  including the reason and any potential appeal process.
+                  Developers must provide a 7-day grace period for Users to
+                  appeal or resolve issues before final removal, during which
+                  Users can contact the Developer for clarification or dispute.
+                  Post-removal, Developers must handle the User’s data per the
+                  FacePass Privacy Policy and data protection regulations,
+                  informing Users about data handling and options for retrieval
+                  or deletion. Developers must review and respond to appeals
+                  within a reasonable timeframe, providing a final decision.
+                  Compliance with FacePass policies, including privacy and user
+                  rights, is mandatory, and abuse of the removal process may
+                  result in the Developer’s account suspension or termination.
+                  By managing projects, Developers agree to these terms and
+                  conditions for removing Users from projects.
                 </p>
               </ModalBody>
               <ModalFooter className="w-full justify-between">
@@ -232,10 +143,5 @@ export default function General() {
         </ModalContent>
       </Modal>
     </section>
-
-
-
-
-
   );
 }
