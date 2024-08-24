@@ -21,6 +21,7 @@ import moment from "moment";
 import { BACKEND_URL } from "@/lib/config";
 
 export default function App() {
+  
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -41,31 +42,58 @@ export default function App() {
   const [emailError, setEmailError] = useState("");
   const [isFaceSign, setIsFaceSign] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
+  
   const [faceOrientation, setFaceOrientation] = useState<string | null>(null);
 
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [isGetStarted, setIsGetStarted] = useState(false);
+  const [faceEmbeddings, setFaceEmbeddings] = useState<any[]>([]); // Declare faceEmbeddings state
 
   const [faceUp, setFaceUp] = useState(false);
   const [faceDown, setFaceDown] = useState(false);
   const [faceLeft, setFaceLeft] = useState(false);
   const [faceRight, setFaceRight] = useState(false);
+  const [faceCenter, setFaceCenter] = useState(false);
 
+  const [RecfaceUp, setRecFaceUp] = useState(false);
+  const [RecfaceDown, setRecFaceDown] = useState(false);
+  const [RecfaceLeft, setRecFaceLeft] = useState(false);
+  const [RecfaceRight, setRecFaceRight] = useState(false);
+  const [RecfaceCenter, setRecFaceCenter] = useState(false);
+
+  // Initialize states with `number[] | null` to allow both types
+  const [faceIDCenter, setFaceIDCenter] = useState<number[] | null>(null);
+  const [faceIDRight, setFaceIDRight] = useState<number[] | null>(null);
+  const [faceIDLeft, setFaceIDLeft] = useState<number[] | null>(null);
+  const [faceIDUp, setFaceIDUp] = useState<number[] | null>(null);
+  const [faceIDDown, setFaceIDDown] = useState<number[] | null>(null);
   const getBorderClass = () => {
     const borderClasses = [];
     if (faceUp) borderClasses.push("border-t-8 border-solid border-blue-500");
     if (faceDown) borderClasses.push("border-b-8 border-solid border-blue-500");
-    if (faceLeft) borderClasses.push("border-l-8 border-solid border-blue-500");
+    if (faceLeft) borderClasses.push("border-r-8 border-solid border-blue-500");
     if (faceRight)
-      borderClasses.push("border-r-8 border-solid border-blue-500");
+      borderClasses.push("border-l-8 border-solid border-blue-500");
     return borderClasses.join(" ");
   };
-  const isButtonDisabled = !(faceUp && faceDown && faceLeft && faceRight);
+  const isButtonDisabled = !(faceUp && faceDown && faceLeft && faceRight && faceCenter);
 
   const formatDate = (date: any) => moment(date).format("MM/DD/YYYY");
 
+  const getBlurClass = () => {
+    if (
+      RecfaceUp &&
+      RecfaceDown &&
+      RecfaceLeft &&
+      RecfaceRight &&
+      RecfaceCenter
+    ) {
+      return "opacity-25"; // Apply the blur effect
+    }
+    return "";
+  };
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -83,6 +111,9 @@ export default function App() {
         faceapi.nets.ssdMobilenetv1.loadFromUri(
           "/models/ssd_mobilenetv1_model-weights_manifest.json"
         ), // Ensure the SSD model is loaded
+        faceapi.nets.faceRecognitionNet.loadFromUri(
+          "/models/face_recognition_model-weights_manifest.json"
+        ), // Load faceRecognitionNet model
       ]);
 
       // Start face detection
@@ -91,151 +122,162 @@ export default function App() {
       console.error("Error accessing the camera or loading models:", error);
     }
   };
-  // const detectFace = async () => {
-  //   if (videoRef.current) {
-  //     const detections = await faceapi
-  //       .detectSingleFace(videoRef.current)
-  //       .withFaceLandmarks();
-
-  //     if (detections) {
-  //       setFaceDetected(true);
-  //       const { landmarks } = detections;
-  //       const nose = landmarks.getNose();
-  //       const leftEye = landmarks.getLeftEye();
-  //       const rightEye = landmarks.getRightEye();
-  //       const mouth = landmarks.getMouth();
-
-  //       if (nose && leftEye && rightEye && mouth) {
-  //         const noseX = nose[3].x;
-  //         const leftEyeX = leftEye[0].x;
-  //         const rightEyeX = rightEye[3].x;
-  //         const noseY = nose[3].y;
-  //         const leftEyeY = leftEye[1].y;
-  //         const rightEyeY = rightEye[1].y;
-  //         const mouthY = mouth[6].y;
-  //         const averageEyeY = (leftEyeY + rightEyeY) / 2;
-
-  //         let orientation: string;
-
-  //         if (noseX > 350) {
-  //           orientation = "left";
-  //           setFaceLeft(true);
-  //         } else if (noseX < 300) {
-  //           orientation = "right";
-  //           setFaceRight(true);
-  //         } else if (noseY < 220) {
-  //           orientation = "up";
-  //           setFaceUp(true);
-  //         } else if (noseY > 280) {
-  //           orientation = "down";
-  //           setFaceDown(true);
-  //         } else {
-  //           orientation = "center";
-  //         }
-  //       }
-  //     }
-  //   }
-  // };
   const detectFace = async () => {
     if (videoRef.current) {
       const detections = await faceapi
         .detectSingleFace(videoRef.current)
         .withFaceLandmarks();
-
+  
       if (detections) {
         setFaceDetected(true);
         const { landmarks } = detections;
         const nose = landmarks.getNose();
         const leftEye = landmarks.getLeftEye();
         const rightEye = landmarks.getRightEye();
-
+  
         if (nose && leftEye && rightEye) {
-          // Get the positions of key landmarks
           const nosePosition = { x: nose[3].x, y: nose[3].y };
           const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
           const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
-
-          // Function to calculate distance between two points
+  
           const distance = (p1, p2) =>
             Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
-
-          // Calculate distances
+  
           const distLeftEyeToNose = distance(leftEyePosition, nosePosition);
           const distRightEyeToNose = distance(rightEyePosition, nosePosition);
-          const distLeftEyeToRightEye = distance(
-            leftEyePosition,
-            rightEyePosition
-          );
-
-          // Function to calculate the area of a triangle given its side lengths
+          const distLeftEyeToRightEye = distance(leftEyePosition, rightEyePosition);
+  
           const triangleArea = (a, b, c) => {
-            const s = (a + b + c) / 2; // semi-perimeter
+            const s = (a + b + c) / 2;
             return Math.sqrt(s * (s - a) * (s - b) * (s - c));
           };
-
-          // Calculate the area of the triangle
+  
           const area = triangleArea(
             distLeftEyeToNose,
             distRightEyeToNose,
             distLeftEyeToRightEye
           );
-
-          // Log details of the triangle
-          // console.log(`Distances:`);
-          // console.log(`Left Eye to Nose: ${distLeftEyeToNose.toFixed(2)}`);
-          // console.log(`Right Eye to Nose: ${distRightEyeToNose.toFixed(2)}`);
-          // console.log(
-          //   `Left Eye to Right Eye: ${distLeftEyeToRightEye.toFixed(2)}`
-          // );
-          // console.log(`Triangle Area: ${area.toFixed(2)}`);
-
-          // Determine face orientation based on distances and area
+  
           let orientation: string;
-
+  
           if (distLeftEyeToNose > distRightEyeToNose + 10) {
             orientation = "left";
+            if (!RecfaceLeft) {
+              await record_face(orientation);
+              setRecFaceLeft(true);
+            }
             setFaceLeft(true);
           } else if (distRightEyeToNose > distLeftEyeToNose + 10) {
             orientation = "right";
+            if (!RecfaceRight) {
+              await record_face(orientation);
+              setRecFaceRight(true);
+            }
             setFaceRight(true);
           } else if (area < 2000) {
             orientation = "up";
+            if (!RecfaceUp) {
+              await record_face(orientation);
+              setRecFaceUp(true);
+            }
             setFaceUp(true);
           } else if (area > 3000) {
             orientation = "down";
+            if (!RecfaceDown) {
+              await record_face(orientation);
+              setRecFaceDown(true);
+            }
             setFaceDown(true);
           } else {
             orientation = "center";
+            if (!RecfaceCenter) {
+              await record_face(orientation);
+              setRecFaceCenter(true);
+            }
+            setFaceCenter(true);
           }
-
-          console.log(`Face orientation: ${orientation}`);
+  
+          // Check if all orientations are recorded
+          if (
+            RecfaceUp &&
+            RecfaceDown &&
+            RecfaceLeft &&
+            RecfaceRight &&
+            RecfaceCenter
+          ) {
+            stopCamera(); // Stop the camera
+            // No need to reset face IDs
+          }
         }
       }
     }
   };
+  
+  
+  const record_face = async (orientation: string) => {
+    if (videoRef.current) {
+      const detections = await faceapi
+        .detectSingleFace(videoRef.current)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+  
+      if (detections) {
+        const descriptor = detections.descriptor;
+        console.log(`Face orientation: ${orientation}, Descriptor:`, descriptor);
+  
+        const faceData = {
+          orientation,
+          descriptor: Array.from(descriptor)
+        };
+  
+        setFaceEmbeddings(prev => [...prev, faceData]);
+      }
+    }
+  };
+  
+  const filterFaceEmbeddings = (embeddings: any) => {
+    const uniqueEmbeddings = [];
+    const seenOrientations = new Set();
+  
+    for (const entry of embeddings) {
+      if (!seenOrientations.has(entry.orientation)) {
+        seenOrientations.add(entry.orientation);
+        uniqueEmbeddings.push(entry);
+      }
+    }
+  
+    return uniqueEmbeddings;
+  };
+  
+  const handleFaceDetection = (embeddings:any) => {
+    console.log('Detected face embeddings:', embeddings);
+    const filteredEmbeddings = filterFaceEmbeddings(embeddings);
+    setFaceEmbeddings(filteredEmbeddings);
+  };
+  
 
   useEffect(() => {
     // Log the face orientation whenever it changes
-    console.log("Face Detected:", faceDetected);
-    console.log("Face Up:", faceUp);
-    console.log("Face Down:", faceDown);
-    console.log("Face Left:", faceLeft);
-    console.log("Face Right:", faceRight);
+    // console.log("Face Detected:", faceDetected);
+    // console.log("Face Up:", faceUp);
+    // console.log("Face Down:", faceDown);
+    // console.log("Face Left:", faceLeft);
+    // console.log("Face Right:", faceRight);
   }, [faceDetected, faceUp, faceDown, faceLeft, faceRight]);
 
-  const getBlurClass = () => {
-    if (faceUp && faceDown && faceLeft && faceRight) {
-      return "opcity-25";
-    }
-    return "";
-  };
+
 
   const stopCamera = () => {
     if (videoStream) {
       videoStream.getTracks().forEach((track) => track.stop());
       setVideoStream(null);
     }
+    faceapi.nets.tinyFaceDetector.dispose();
+    faceapi.nets.faceLandmark68Net.dispose();
+    faceapi.nets.ssdMobilenetv1.dispose();
+    faceapi.nets.faceRecognitionNet.dispose();
   };
+  
 
   const checkEmailExists = async (email: string) => {
     try {
@@ -257,9 +299,48 @@ export default function App() {
     setFaceUp(false);
     setFaceLeft(false);
     setFaceRight(false);
+    setFaceCenter(false);
+    setRecFaceCenter(false);
+    setRecFaceUp(false);
+    setRecFaceDown(false);
+    setRecFaceLeft(false);
+    setRecFaceRight(false);
+
+    setFaceIDCenter(null);
+    setFaceIDDown(null);
+    setFaceIDRight(null);
+    setFaceIDUp(null);
+    setFaceIDLeft(null);
   };
 
+  const prepareFaceEmbeddings = (embedding: any) => {
+    const uniqueEmbeddingsMap = new Map();
+
+    embedding.forEach(({ orientation, descriptor }: any) => {
+      if (!uniqueEmbeddingsMap.has(orientation)) {
+        uniqueEmbeddingsMap.set(orientation, {
+          orientation,
+          descriptor: Array.from(descriptor)
+        });
+      }
+    });
+
+    return Array.from(uniqueEmbeddingsMap.values());
+  };
+  
   const signUp = async () => {
+    const filteredFaceEmbeddings = prepareFaceEmbeddings(faceEmbeddings);
+
+    console.log('Sending registration data:', {
+      first_name: firstName,
+      last_name: lastName,
+      date_of_birth: formattedBirthDate,
+      gender,
+      phone_number: phoneNumber,
+      email,
+      faceEmbeddings: filteredFaceEmbeddings,
+    });
+
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/register`, {
         first_name: firstName,
@@ -268,18 +349,24 @@ export default function App() {
         gender,
         phone_number: phoneNumber,
         email,
+        faceEmbeddings: filteredFaceEmbeddings,
       });
 
       console.log("Registration successful!", response.data);
-      onOpen();
+      // onOpen();
+      stopCamera();
 
       setTimeout(() => {
         router.push("/sign-in");
       }, 1500);
     } catch (error) {
-      console.error("Sign-up error:", error);
+      console.error("Sign-up error:", error.response ? error.response.data : error.message);
     }
   };
+
+  
+  
+  
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -347,7 +434,10 @@ export default function App() {
       return () => clearInterval(intervalId);
     }
   }, [videoStream]);
-
+  useEffect(() => {
+    console.log("Face embeddings:", faceEmbeddings);
+  }, [faceEmbeddings]);
+  
   return (
     <>
       {!isFaceSign ? (
@@ -487,7 +577,7 @@ export default function App() {
           <div className="fixed VStack inset-0 bg-black z-40 flex items-center justify-between pb-14 pt-48">
             <div className="VStack gap-3 text-center justify-center items-center">
               {isGetStarted ? (
-                <>
+                <div className="VStack gap-8 items-center justify-center">
                   <p className="font-semibold text-3xl">
                     {faceDetected
                       ? "Move your head slowly to complete circle"
@@ -511,14 +601,14 @@ export default function App() {
                   >
                     <video
                       ref={videoRef}
-                      className={`absolute w-full h-full object-cover ${
+                      className={`absolute w-full h-full object-cover scale-x-[-1] ${
                         faceDetected
                           ? `rounded-full ${getBorderClass()}`
                           : "rounded-lg"
                       }`}
                     />
                   </div>
-                </>
+                </div>
               ) : (
                 <Image
                   src="images/face.gif"
@@ -545,6 +635,7 @@ export default function App() {
               ) : (
                 <Button
                   isDisabled={isButtonDisabled}
+                  onClick={signUp}
                   className="mt-4 text-white text-base font-medium bg-blue-500 pt-6 pb-6 pl-32 pr-32"
                 >
                   Continue
