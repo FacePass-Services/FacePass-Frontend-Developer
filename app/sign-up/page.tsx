@@ -18,8 +18,11 @@ import {
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import { BACKEND_URL } from "@/lib/config";
+import useToken from "@/hooks/useToken";
 
 export default function App() {
+  const { setToken , userId } = useToken();
+
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -42,11 +45,18 @@ export default function App() {
   const [faceDetected, setFaceDetected] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false); // New state for final overlay
 
+  const [recFaceUp, setRecFaceUp] = useState(false);
+  const [recFaceDown, setRecFaceDown] = useState(false);
+  const [recFaceCenter, setRecFaceCenter] = useState(false);
+  const [recFaceLeft, setRecFaceLeft] = useState(false);
+  const [recFaceRight, setRecFaceRight] = useState(false);
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [isGetStarted, setIsGetStarted] = useState(false);
-
+  const [isRecorded, setIsRecorded] = useState(
+    recFaceCenter && recFaceDown && recFaceLeft && recFaceRight && recFaceUp
+  );
   const formatDate = (date: any) => moment(date).format("MM/DD/YYYY");
 
   const startCamera = async () => {
@@ -63,6 +73,12 @@ export default function App() {
         faceapi.nets.faceLandmark68Net.loadFromUri(
           "/models/face_landmark_68_model-weights_manifest.json"
         ),
+        faceapi.nets.ssdMobilenetv1.loadFromUri(
+          "/models/ssd_mobilenetv1_model-weights_manifest.json"
+        ), // Ensure the SSD model is loaded
+        faceapi.nets.faceRecognitionNet.loadFromUri(
+          "/models/face_recognition_model-weights_manifest.json"
+        ), // Load faceRecognitionNet model
       ]);
 
       // Start face detection
@@ -74,19 +90,308 @@ export default function App() {
 
   const detectFace = async () => {
     if (videoRef.current) {
-      const detections = await faceapi.detectSingleFace(
-        videoRef.current,
-        new faceapi.TinyFaceDetectorOptions()
-      );
+      const detections = await faceapi
+        .detectSingleFace(videoRef.current)
+        .withFaceLandmarks();
+
       if (detections) {
         setFaceDetected(true);
-        console.log("Face detected:", detections);
+        const { landmarks } = detections;
+        const nose = landmarks.getNose();
+        const leftEye = landmarks.getLeftEye();
+        const rightEye = landmarks.getRightEye();
+
+        if (nose && leftEye && rightEye) {
+          const nosePosition = { x: nose[3].x, y: nose[3].y };
+          const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
+          const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
+
+          console.log("Nose Position:", nosePosition);
+          // console.log('Left Eye Position:', leftEyePosition);
+          // console.log('Right Eye Position:', rightEyePosition);
+
+          const distance = (p1: any, p2: any) =>
+            Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+
+          const distLeftEyeToNose = distance(leftEyePosition, nosePosition);
+          const distRightEyeToNose = distance(rightEyePosition, nosePosition);
+          const distLeftEyeToRightEye = distance(
+            leftEyePosition,
+            rightEyePosition
+          );
+
+          // console.log('Distance from Left Eye to Nose:', distLeftEyeToNose);
+          // console.log('Distance from Right Eye to Nose:', distRightEyeToNose);
+          // console.log('Distance from Left Eye to Right Eye:', distLeftEyeToRightEye);
+
+          const triangleArea = (a: any, b: any, c: any) => {
+            const s = (a + b + c) / 2;
+            return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+          };
+
+          const area = triangleArea(
+            distLeftEyeToNose,
+            distRightEyeToNose,
+            distLeftEyeToRightEye
+          );
+
+          console.log("Triangle Area:", area);
+
+          let orientation;
+
+          const eyeThreshold = 0.15 * distLeftEyeToRightEye;
+          const areaThreshold = 0.2 * distLeftEyeToRightEye;
+
+          if (distLeftEyeToNose > distRightEyeToNose + eyeThreshold) {
+            orientation = "left";
+            if (!recFaceLeft) {
+              // await recordFace(orientation);
+              setRecFaceLeft(true);
+            }
+          } else if (distRightEyeToNose > distLeftEyeToNose + eyeThreshold) {
+            orientation = "right";
+            if (!recFaceRight) {
+              await recordFace(orientation);
+              setRecFaceRight(true);
+            }
+          } else if (area < 2000 * areaThreshold && nosePosition.y < 230) {
+            orientation = "up";
+            if (!recFaceUp) {
+              await recordFace(orientation);
+              setRecFaceUp(true);
+            }
+          } else if (area > 3000 * areaThreshold || nosePosition.y > 300) {
+            orientation = "down";
+            if (!recFaceDown) {
+              await recordFace(orientation);
+              setRecFaceDown(true);
+            }
+          } else {
+            orientation = "center";
+            if (!recFaceCenter) {
+              await recordFace(orientation);
+              setRecFaceCenter(true);
+            }
+          }
+
+          console.log("Orientation Detected:", orientation);
+
+          if (
+            recFaceCenter &&
+            recFaceDown &&
+            recFaceLeft &&
+            recFaceRight &&
+            recFaceUp
+          ) {
+            console.log("All face orientations recorded, stopping camera.");
+            stopCamera();
+          }
+        } else {
+          console.error("Landmarks data is missing");
+        }
       } else {
         setFaceDetected(false);
         console.log("No face detected");
       }
     }
   };
+  const recordFace = async (orientation: string) => {
+    const userId = localStorage.getItem("userId");
+    if (videoRef.current) {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const ctx = canvas.getContext("2d");
+  
+      if (ctx) {
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+  
+        // Convert the canvas to a Blob (binary large object)
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            const formData = new FormData();
+            formData.append('image', blob, `face_${orientation}.jpg`);
+            formData.append('orientation', orientation);
+            formData.append('userId', userId || '');
+  
+            try {
+              const response = await axios.post(
+                `${BACKEND_URL}/auth/register-face`,
+                formData,
+                {
+                  headers: {
+                    'Content-Type': 'multipart/form-data',
+                  },
+                }
+              );
+  
+              if (response.data.success) {
+                console.log(
+                  `Face registered successfully for ${orientation} orientation`
+                );
+              } else {
+                console.error("Error registering face:", response.data.error);
+              }
+            } catch (error) {
+              console.error(
+                "Error registering face:",
+                error.response ? error.response.data : error.message
+              );
+            }
+          } else {
+            console.error("Failed to convert canvas to Blob");
+          }
+        }, 'image/jpeg');
+      } else {
+        console.error("Failed to get 2D context for canvas");
+      }
+    }
+  };
+  // const detectFace = async () => {
+  //   if (videoRef.current) {
+  //     const detections = await faceapi
+  //       .detectSingleFace(videoRef.current)
+  //       .withFaceLandmarks();
+
+  //     if (detections) {
+  //       setFaceDetected(true);
+  //       const { landmarks } = detections;
+  //       const nose = landmarks.getNose();
+  //       const leftEye = landmarks.getLeftEye();
+  //       const rightEye = landmarks.getRightEye();
+
+  //       if (nose && leftEye && rightEye) {
+  //         const nosePosition = { x: nose[3].x, y: nose[3].y };
+  //         const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
+  //         const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
+
+  //         // Function to calculate distance between two points
+  //         const distance = (p1:any, p2:any) =>
+  //           Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+
+  //         // Compute distances
+  //         const distLeftEyeToNose = distance(leftEyePosition, nosePosition);
+  //         const distRightEyeToNose = distance(rightEyePosition, nosePosition);
+  //         const distLeftEyeToRightEye = distance(leftEyePosition, rightEyePosition);
+
+  //         // Function to calculate area of a triangle using side lengths
+  //         const triangleArea = (a:any, b:any, c:any) => {
+  //           const s = (a + b + c) / 2;
+  //           return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+  //         };
+
+  //         // Calculate area of the triangle formed by the eyes and nose
+  //         const area = triangleArea(
+  //           distLeftEyeToNose,
+  //           distRightEyeToNose,
+  //           distLeftEyeToRightEye
+  //         );
+
+  //         console.log('Nose Position:', nosePosition);
+  //         console.log('Left Eye Position:', leftEyePosition);
+  //         console.log('Right Eye Position:', rightEyePosition);
+  //         console.log('Distance from Left Eye to Nose:', distLeftEyeToNose);
+  //         console.log('Distance from Right Eye to Nose:', distRightEyeToNose);
+  //         console.log('Distance from Left Eye to Right Eye:', distLeftEyeToRightEye);
+  //         console.log('Triangle Area:', area);
+
+  //         let orientation;
+
+  //         // Determine orientation based on distances and area
+  //         if (distLeftEyeToNose > distRightEyeToNose + 10) {
+  //           orientation = "left";
+  //           if (!recFaceLeft) {
+  //             await recordFace(orientation); // Uncomment if needed
+  //             setRecFaceLeft(true);
+  //           }
+  //         } else if (distRightEyeToNose > distLeftEyeToNose + 10) {
+  //           orientation = "right";
+  //           if (!recFaceRight) {
+  //             await recordFace(orientation); // Uncomment if needed
+  //             setRecFaceRight(true);
+  //           }
+  //         } else if (area < 2000) {
+  //           orientation = "up";
+  //           if (!recFaceUp) {
+  //             await recordFace(orientation); // Uncomment if needed
+  //             setRecFaceUp(true);
+  //           }
+  //         } else if (area > 3000) {
+  //           orientation = "down";
+  //           if (!recFaceDown) {
+  //             await recordFace(orientation); // Uncomment if needed
+  //             setRecFaceDown(true);
+  //           }
+  //         } else {
+  //           orientation = "center";
+  //           if (!recFaceCenter) {
+  //             await recordFace(orientation); // Uncomment if needed
+  //             setRecFaceCenter(true);
+  //           }
+  //         }
+
+  //         console.log('Orientation Detected:', orientation);
+
+  //         if (
+  //           recFaceCenter &&
+  //           recFaceDown &&
+  //           recFaceLeft &&
+  //           recFaceRight &&
+  //           recFaceUp
+  //         ) {
+  //           console.log('All face orientations recorded, stopping camera.');
+  //           stopCamera();
+  //         }
+  //       } else {
+  //         console.error("Landmarks data is missing");
+  //       }
+  //     } else {
+  //       setFaceDetected(false);
+  //       console.log("No face detected");
+  //     }
+  //   }
+  // };
+  // const recordFace = async (orientation: string) => {
+  //   try {
+  //     const canvas = document.createElement("canvas");
+  //     const context = canvas.getContext("2d");
+  //     if (context && videoRef.current) {
+  //       canvas.width = videoRef.current.videoWidth;
+  //       canvas.height = videoRef.current.videoHeight;
+  //       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+
+  //       // Convert canvas to blob
+  //       const blob = await new Promise<Blob | null>((resolve) =>
+  //         canvas.toBlob((b) => resolve(b), "image/jpeg")
+  //       );
+
+  //       if (blob) {
+  //         // Send image to Azure Face API
+  //         const formData = new FormData();
+  //         formData.append("image", blob, `${orientation}.jpg`);
+
+  //         // Use the Azure Face API to add face to a Person
+  //         const personId = "<PERSON_ID>"; // Get this from person creation API
+  //         const personGroupId = "<PERSON_GROUP_ID>"; // Your created PersonGroup ID
+  //         const response = await axios.post(
+  //           `${process.env.NEXT_PUBLIC_AZURE_FACE_ENDPOINT}/persongroups/${personGroupId}/persons/${personId}/persistedFaces`,
+  //           blob,
+  //           {
+  //             headers: {
+  //               "Content-Type": "application/octet-stream",
+  //               "Ocp-Apim-Subscription-Key":
+  //                 process.env.NEXT_PUBLIC_AZURE_FACE_KEY,
+  //             },
+  //           }
+  //         );
+
+  //         console.log(`Face ${orientation} recorded:`, response.data);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error(`Failed to record face ${orientation}:`, error);
+  //   }
+  // };
 
   const stopCamera = () => {
     if (videoStream) {
@@ -111,9 +416,22 @@ export default function App() {
     setIsFaceSign(false);
     stopCamera();
     setIsGetStarted(false);
-  };
-
-  const signUp = async () => {
+    setRecFaceCenter(false);
+    setRecFaceDown(false);
+    setRecFaceLeft(false);
+    setRecFaceRight(false);
+    setRecFaceUp(false);
+    setFaceDetected(false);
+  };const signUp = async () => {
+    console.log("Sending registration data:", {
+      first_name: firstName,
+      last_name: lastName,
+      date_of_birth: formattedBirthDate,
+      gender,
+      phone_number: phoneNumber,
+      email,
+    });
+  
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/register`, {
         first_name: firstName,
@@ -123,16 +441,36 @@ export default function App() {
         phone_number: phoneNumber,
         email,
       });
-
+  
       console.log("Registration successful!", response.data);
-      setIsFaceSign(false);
-      setIsCompleted(true); // Set completed state to true
-      stopCamera();
+  
+      // Extract userId from the response
+      const userId = response.data.user.id;
+      console.log("Received userId:", userId);
+  
+      if (userId) {
+        localStorage.setItem("userId", userId);
+        console.log("userId saved to localStorage:", localStorage.getItem("userId"));
+  
+        // Optionally, navigate or trigger other actions
+        // onOpen();
+        // stopCamera();
+  
+        // setTimeout(() => {
+        //   router.push("/sign-in");
+        // }, 1500);
+      } else {
+        console.error("userId is undefined in the response data.");
+      }
     } catch (error) {
-      console.error("Sign-up error:", error);
+      console.error(
+        "Sign-up error:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
-
+  
+  
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -194,18 +532,38 @@ export default function App() {
 
       // Check face every 1 second
       const intervalId = setInterval(() => {
-        detectFace();
+        if (
+          !recFaceCenter &&
+          !recFaceDown &&
+          !recFaceLeft &&
+          !recFaceRight &&
+          !recFaceUp
+        ) {
+          detectFace();
+        }
       }, 1000);
 
       return () => clearInterval(intervalId);
     }
   }, [videoStream]);
+
+  // useEffect(() => {
+  //   setIsRecorded(
+  //     recFaceCenter && recFaceDown && recFaceLeft && recFaceRight && recFaceUp
+  //   );
+  // }, [recFaceCenter, recFaceDown, recFaceLeft, recFaceRight, recFaceUp]);
+
+  useEffect(() => {
+    setIsRecorded(
+      recFaceCenter && recFaceDown && recFaceLeft && recFaceRight && recFaceUp
+    );
+  }, [recFaceCenter, recFaceDown, recFaceLeft, recFaceRight, recFaceUp]);
+
   const handleContinue = async () => {
     if (faceDetected) {
       // Update completion status
       setIsCompleted(true);
       // Optionally, you can also trigger sign-up here if needed
-      await signUp();
     }
   };
 
@@ -334,7 +692,9 @@ export default function App() {
                   </span>
                 </p>
               </div>
-              <Button type="submit">Continue</Button>
+              <Button type="submit" onClick={signUp}>
+                Sign Up
+              </Button>
             </form>
           </div>
         </main>
@@ -345,7 +705,7 @@ export default function App() {
               Cancel
             </p>
           </div>
-          <div className="fixed VStack inset-0 bg-black z-40 flex items-center justify-between pb-14 pt-48">
+          <div className="fixed VStack inset-0 bg-black z-40 flex items-center justify-between pb-14 pt-36">
             <div className="VStack gap-3 text-center justify-center items-center">
               {isGetStarted ? (
                 <>
@@ -355,19 +715,77 @@ export default function App() {
                       : "Reposition Your Face Within the Frame."}
                   </p>
                   <p>Move your face within the frame.</p>
-                  <div
-                    className={`relative w-80 h-80 bg-black  transition-all duration-500 ${
-                      faceDetected
-                        ? "rounded-full border-4 border-green-500"
-                        : "rounded-lg"
-                    }`}
-                  >
-                    <video
-                      ref={videoRef}
-                      className={`absolute w-full h-full object-cover  ${
-                        faceDetected ? "rounded-full" : "rounded-lg"
-                      }`}
-                    />
+                  <div className="VStack items-center">
+                    {faceDetected && (
+                      <div
+                        className={`${
+                          recFaceUp ? "opacity-100" : "opacity-30"
+                        }`}
+                      >
+                        <Image
+                          src="images/top.png"
+                          className={`object-contain max-w-80 scale-[0.6] ${
+                            !recFaceUp ? "opacity-20" : "opacity-100"
+                          }`}
+                          alt=""
+                        />
+                      </div>
+                    )}
+                    <div className="HStack">
+                      {faceDetected && (
+                        <div
+                          className={`${
+                            recFaceLeft ? "opacity-100" : "opacity-30"
+                          }`}
+                        >
+                          <Image
+                            src="images/left.png"
+                            className="object-contain  max-h-80 scale-[0.6]"
+                            alt=""
+                          />
+                        </div>
+                      )}
+                      <div
+                        className={`relative w-80 h-80 bg-black transition-all duration-500 ${
+                          faceDetected
+                            ? "rounded-full border-4 border-blue-500"
+                            : "rounded-lg"
+                        } ${isRecorded ? " opacity-10" : "opacity-100"}`}
+                      >
+                        <video
+                          ref={videoRef}
+                          className={`absolute scale-x-[-1] w-full h-full object-cover ${
+                            faceDetected ? "rounded-full" : "rounded-lg"
+                          }`}
+                        />
+                      </div>
+                      {faceDetected && (
+                        <div
+                          className={`${
+                            recFaceRight ? "opacity-100" : "opacity-30"
+                          }`}
+                        >
+                          <Image
+                            src="images/right.png"
+                            className="object-contain max-h-80 scale-[0.6]"
+                            alt=""
+                          />
+                        </div>
+                      )}
+                    </div>
+                    {faceDetected && (
+                      <div
+                        className={`${
+                          recFaceDown ? "opacity-100" : "opacity-30"
+                        }`}
+                      >
+                        <Image
+                          src="images/down.png"
+                          className="object-contain max-w-80 scale-[0.6]"
+                          alt=""
+                        />
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -395,11 +813,11 @@ export default function App() {
                 </Button>
               ) : (
                 <Button
-                  isDisabled={!faceDetected} // Conditionally disable button
+                  isDisabled={!isRecorded} // Disable button if not all recFace states are true
                   className="mt-4 text-white text-base font-medium bg-blue-500 pt-6 pb-6 pl-32 pr-32"
                   onClick={handleContinue}
                 >
-                  Continue
+                  Done
                 </Button>
               )}
               {!isGetStarted && (
