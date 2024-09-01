@@ -21,7 +21,7 @@ import { BACKEND_URL } from "@/lib/config";
 import useToken from "@/hooks/useToken";
 
 export default function App() {
-  const { setToken , userId } = useToken();
+  const { setToken, userId } = useToken();
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [firstName, setFirstName] = useState("");
@@ -106,7 +106,7 @@ export default function App() {
           const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
           const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
 
-          console.log("Nose Position:", nosePosition);
+          // console.log("Nose Position:", nosePosition);
           // console.log('Left Eye Position:', leftEyePosition);
           // console.log('Right Eye Position:', rightEyePosition);
 
@@ -135,7 +135,7 @@ export default function App() {
             distLeftEyeToRightEye
           );
 
-          console.log("Triangle Area:", area);
+          // console.log("Triangle Area:", area);
 
           let orientation;
 
@@ -145,7 +145,7 @@ export default function App() {
           if (distLeftEyeToNose > distRightEyeToNose + eyeThreshold) {
             orientation = "left";
             if (!recFaceLeft) {
-              // await recordFace(orientation);
+              await recordFace(orientation);
               setRecFaceLeft(true);
             }
           } else if (distRightEyeToNose > distLeftEyeToNose + eyeThreshold) {
@@ -174,7 +174,7 @@ export default function App() {
             }
           }
 
-          console.log("Orientation Detected:", orientation);
+          // console.log("Orientation Detected:", orientation);
 
           if (
             recFaceCenter &&
@@ -202,29 +202,29 @@ export default function App() {
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext("2d");
-  
+
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-  
+
         // Convert the canvas to a Blob (binary large object)
         canvas.toBlob(async (blob) => {
           if (blob) {
             const formData = new FormData();
-            formData.append('image', blob, `face_${orientation}.jpg`);
-            formData.append('orientation', orientation);
-            formData.append('userId', userId || '');
-  
+            formData.append("image", blob, `face_${orientation}.jpg`);
+            formData.append("orientation", orientation);
+            formData.append("userId", userId || "");
+
             try {
               const response = await axios.post(
                 `${BACKEND_URL}/auth/register-face`,
                 formData,
                 {
                   headers: {
-                    'Content-Type': 'multipart/form-data',
+                    "Content-Type": "multipart/form-data",
                   },
                 }
               );
-  
+
               if (response.data.success) {
                 console.log(
                   `Face registered successfully for ${orientation} orientation`
@@ -241,7 +241,7 @@ export default function App() {
           } else {
             console.error("Failed to convert canvas to Blob");
           }
-        }, 'image/jpeg');
+        }, "image/jpeg");
       } else {
         console.error("Failed to get 2D context for canvas");
       }
@@ -422,7 +422,8 @@ export default function App() {
     setRecFaceRight(false);
     setRecFaceUp(false);
     setFaceDetected(false);
-  };const signUp = async () => {
+  };
+  const signUp = async () => {
     console.log("Sending registration data:", {
       first_name: firstName,
       last_name: lastName,
@@ -431,7 +432,7 @@ export default function App() {
       phone_number: phoneNumber,
       email,
     });
-  
+
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/register`, {
         first_name: firstName,
@@ -441,21 +442,24 @@ export default function App() {
         phone_number: phoneNumber,
         email,
       });
-  
+
       console.log("Registration successful!", response.data);
-  
+
       // Extract userId from the response
       const userId = response.data.user.id;
       console.log("Received userId:", userId);
-  
+
       if (userId) {
         localStorage.setItem("userId", userId);
-        console.log("userId saved to localStorage:", localStorage.getItem("userId"));
-  
+        console.log(
+          "userId saved to localStorage:",
+          localStorage.getItem("userId")
+        );
+
         // Optionally, navigate or trigger other actions
         // onOpen();
         // stopCamera();
-  
+
         // setTimeout(() => {
         //   router.push("/sign-in");
         // }, 1500);
@@ -469,8 +473,7 @@ export default function App() {
       );
     }
   };
-  
-  
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
