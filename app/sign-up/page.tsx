@@ -22,7 +22,6 @@ import useToken from "@/hooks/useToken";
 
 export default function App() {
   const { setToken, userId } = useToken();
-
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -87,6 +86,50 @@ export default function App() {
       console.error("Error accessing the camera:", error);
     }
   };
+  const stopCamera = () => {
+    if (videoStream) {
+      videoStream.getTracks().forEach((track) => track.stop());
+      setVideoStream(null);
+    }
+  };
+
+  useEffect(() => {
+    if (videoRef.current && videoStream) {
+      videoRef.current.srcObject = videoStream;
+      videoRef.current.play();
+
+      // Check face every 1 second
+      const intervalId = setInterval(() => {
+        if (
+          !recFaceCenter &&
+          !recFaceDown &&
+          !recFaceLeft &&
+          !recFaceRight &&
+          !recFaceUp
+        ) {
+          detectFace();
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 1000);
+
+      // return () => clearInterval(intervalId);
+    }
+  }, [videoStream]);
+
+  useEffect(() => {
+    if (
+      recFaceCenter &&
+      recFaceDown &&
+      recFaceLeft &&
+      recFaceRight &&
+      recFaceUp
+    ) {
+      console.log("All face orientations recorded, stopping camera.");
+      stopCamera();
+    } else {
+    }
+  }, [recFaceCenter, recFaceDown, recFaceLeft, recFaceRight, recFaceUp]);
 
   const detectFace = async () => {
     if (videoRef.current) {
@@ -176,16 +219,16 @@ export default function App() {
 
           // console.log("Orientation Detected:", orientation);
 
-          if (
-            recFaceCenter &&
-            recFaceDown &&
-            recFaceLeft &&
-            recFaceRight &&
-            recFaceUp
-          ) {
-            console.log("All face orientations recorded, stopping camera.");
-            stopCamera();
-          }
+          // if (
+          //   recFaceCenter &&
+          //   recFaceDown &&
+          //   recFaceLeft &&
+          //   recFaceRight &&
+          //   recFaceUp
+          // ) {
+          //   console.log("All face orientations recorded, stopping camera.");
+          //   stopCamera();
+          // }
         } else {
           console.error("Landmarks data is missing");
         }
@@ -245,158 +288,6 @@ export default function App() {
       } else {
         console.error("Failed to get 2D context for canvas");
       }
-    }
-  };
-  // const detectFace = async () => {
-  //   if (videoRef.current) {
-  //     const detections = await faceapi
-  //       .detectSingleFace(videoRef.current)
-  //       .withFaceLandmarks();
-
-  //     if (detections) {
-  //       setFaceDetected(true);
-  //       const { landmarks } = detections;
-  //       const nose = landmarks.getNose();
-  //       const leftEye = landmarks.getLeftEye();
-  //       const rightEye = landmarks.getRightEye();
-
-  //       if (nose && leftEye && rightEye) {
-  //         const nosePosition = { x: nose[3].x, y: nose[3].y };
-  //         const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
-  //         const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
-
-  //         // Function to calculate distance between two points
-  //         const distance = (p1:any, p2:any) =>
-  //           Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
-
-  //         // Compute distances
-  //         const distLeftEyeToNose = distance(leftEyePosition, nosePosition);
-  //         const distRightEyeToNose = distance(rightEyePosition, nosePosition);
-  //         const distLeftEyeToRightEye = distance(leftEyePosition, rightEyePosition);
-
-  //         // Function to calculate area of a triangle using side lengths
-  //         const triangleArea = (a:any, b:any, c:any) => {
-  //           const s = (a + b + c) / 2;
-  //           return Math.sqrt(s * (s - a) * (s - b) * (s - c));
-  //         };
-
-  //         // Calculate area of the triangle formed by the eyes and nose
-  //         const area = triangleArea(
-  //           distLeftEyeToNose,
-  //           distRightEyeToNose,
-  //           distLeftEyeToRightEye
-  //         );
-
-  //         console.log('Nose Position:', nosePosition);
-  //         console.log('Left Eye Position:', leftEyePosition);
-  //         console.log('Right Eye Position:', rightEyePosition);
-  //         console.log('Distance from Left Eye to Nose:', distLeftEyeToNose);
-  //         console.log('Distance from Right Eye to Nose:', distRightEyeToNose);
-  //         console.log('Distance from Left Eye to Right Eye:', distLeftEyeToRightEye);
-  //         console.log('Triangle Area:', area);
-
-  //         let orientation;
-
-  //         // Determine orientation based on distances and area
-  //         if (distLeftEyeToNose > distRightEyeToNose + 10) {
-  //           orientation = "left";
-  //           if (!recFaceLeft) {
-  //             await recordFace(orientation); // Uncomment if needed
-  //             setRecFaceLeft(true);
-  //           }
-  //         } else if (distRightEyeToNose > distLeftEyeToNose + 10) {
-  //           orientation = "right";
-  //           if (!recFaceRight) {
-  //             await recordFace(orientation); // Uncomment if needed
-  //             setRecFaceRight(true);
-  //           }
-  //         } else if (area < 2000) {
-  //           orientation = "up";
-  //           if (!recFaceUp) {
-  //             await recordFace(orientation); // Uncomment if needed
-  //             setRecFaceUp(true);
-  //           }
-  //         } else if (area > 3000) {
-  //           orientation = "down";
-  //           if (!recFaceDown) {
-  //             await recordFace(orientation); // Uncomment if needed
-  //             setRecFaceDown(true);
-  //           }
-  //         } else {
-  //           orientation = "center";
-  //           if (!recFaceCenter) {
-  //             await recordFace(orientation); // Uncomment if needed
-  //             setRecFaceCenter(true);
-  //           }
-  //         }
-
-  //         console.log('Orientation Detected:', orientation);
-
-  //         if (
-  //           recFaceCenter &&
-  //           recFaceDown &&
-  //           recFaceLeft &&
-  //           recFaceRight &&
-  //           recFaceUp
-  //         ) {
-  //           console.log('All face orientations recorded, stopping camera.');
-  //           stopCamera();
-  //         }
-  //       } else {
-  //         console.error("Landmarks data is missing");
-  //       }
-  //     } else {
-  //       setFaceDetected(false);
-  //       console.log("No face detected");
-  //     }
-  //   }
-  // };
-  // const recordFace = async (orientation: string) => {
-  //   try {
-  //     const canvas = document.createElement("canvas");
-  //     const context = canvas.getContext("2d");
-  //     if (context && videoRef.current) {
-  //       canvas.width = videoRef.current.videoWidth;
-  //       canvas.height = videoRef.current.videoHeight;
-  //       context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-  //       // Convert canvas to blob
-  //       const blob = await new Promise<Blob | null>((resolve) =>
-  //         canvas.toBlob((b) => resolve(b), "image/jpeg")
-  //       );
-
-  //       if (blob) {
-  //         // Send image to Azure Face API
-  //         const formData = new FormData();
-  //         formData.append("image", blob, `${orientation}.jpg`);
-
-  //         // Use the Azure Face API to add face to a Person
-  //         const personId = "<PERSON_ID>"; // Get this from person creation API
-  //         const personGroupId = "<PERSON_GROUP_ID>"; // Your created PersonGroup ID
-  //         const response = await axios.post(
-  //           `${process.env.NEXT_PUBLIC_AZURE_FACE_ENDPOINT}/persongroups/${personGroupId}/persons/${personId}/persistedFaces`,
-  //           blob,
-  //           {
-  //             headers: {
-  //               "Content-Type": "application/octet-stream",
-  //               "Ocp-Apim-Subscription-Key":
-  //                 process.env.NEXT_PUBLIC_AZURE_FACE_KEY,
-  //             },
-  //           }
-  //         );
-
-  //         console.log(`Face ${orientation} recorded:`, response.data);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error(`Failed to record face ${orientation}:`, error);
-  //   }
-  // };
-
-  const stopCamera = () => {
-    if (videoStream) {
-      videoStream.getTracks().forEach((track) => track.stop());
-      setVideoStream(null);
     }
   };
 
@@ -529,34 +420,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (videoRef.current && videoStream) {
-      videoRef.current.srcObject = videoStream;
-      videoRef.current.play();
-
-      // Check face every 1 second
-      const intervalId = setInterval(() => {
-        if (
-          !recFaceCenter &&
-          !recFaceDown &&
-          !recFaceLeft &&
-          !recFaceRight &&
-          !recFaceUp
-        ) {
-          detectFace();
-        }
-      }, 1000);
-
-      return () => clearInterval(intervalId);
-    }
-  }, [videoStream]);
-
-  // useEffect(() => {
-  //   setIsRecorded(
-  //     recFaceCenter && recFaceDown && recFaceLeft && recFaceRight && recFaceUp
-  //   );
-  // }, [recFaceCenter, recFaceDown, recFaceLeft, recFaceRight, recFaceUp]);
-
-  useEffect(() => {
     setIsRecorded(
       recFaceCenter && recFaceDown && recFaceLeft && recFaceRight && recFaceUp
     );
@@ -566,6 +429,11 @@ export default function App() {
     if (faceDetected) {
       // Update completion status
       setIsCompleted(true);
+      // Wait for 3 seconds
+      setTimeout(async () => {
+        // Navigate to /sign-in
+        window.location.href = "/sign-in";
+      }, 3000);
       // Optionally, you can also trigger sign-up here if needed
     }
   };
@@ -842,15 +710,13 @@ export default function App() {
             </p>
           </div>
           <div className="fixed VStack inset-0 bg-black z-40 flex items-center justify-between pb-14 pt-48">
-            <div className="VStack gap-3 text-center justify-center items-center">
-              <>
-                {/* <Button
-        className="mt-4"
-        onClick={() => router.push("/sign-in")}
-       > */}
-                Go to Sign In
-                {/* </Button> */}
-              </>
+            <div className="VStack gap-10 text-center justify-center items-center">
+              <p className="text-3xl text-white font-medium">All Done!</p>
+              <Image
+                src="images/done-animate.gif"
+                className="w-28 h-28 object-cover rounded-full"
+                alt=""
+              />
             </div>
           </div>
         </>

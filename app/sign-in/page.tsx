@@ -113,6 +113,7 @@ const App = () => {
           } else {
             orientation = "center";
           }
+          console.log("Current: ", orientation);
 
           return { orientation }; // Return an object with the orientation property
         } else {
@@ -131,13 +132,37 @@ const App = () => {
   const [randomOrientation, setRandomOrientation] = useState<string | null>(
     null
   );
+  // const faceLiveness = async () => {
+  //   if (randomOrientation === null) {
+  //     const orientations = ["left", "right"];
+  //     const newRandomOrientation =
+  //       orientations[Math.floor(Math.random() * orientations.length)];
+  //     setRandomOrientation(newRandomOrientation);
+  //   }
+
+  //   const faceDetectionResult = await detectFace();
+  //   if (!faceDetectionResult) {
+  //     console.log("Face detection result is undefined");
+  //     return false; // or throw an error, depending on your requirements
+  //   }
+
+  //   if (faceDetectionResult.orientation === randomOrientation) {
+  //     console.log("Face liveness check passed!");
+  //     return true;
+  //   } else {
+  //     console.log("Face liveness check failed!");
+  //     return false;
+  //   }
+  // };
   const faceLiveness = async () => {
-    if (randomOrientation === null) {
+    let newRandomOrientation: string | null = randomOrientation;
+
+    if (newRandomOrientation === null) {
       const orientations = ["left", "right"];
-      const newRandomOrientation =
+      newRandomOrientation =
         orientations[Math.floor(Math.random() * orientations.length)];
-      setRandomOrientation(newRandomOrientation);
     }
+    console.log("Liveness: ", newRandomOrientation);
 
     const faceDetectionResult = await detectFace();
     if (!faceDetectionResult) {
@@ -145,8 +170,9 @@ const App = () => {
       return false; // or throw an error, depending on your requirements
     }
 
-    if (faceDetectionResult.orientation === randomOrientation) {
+    if (faceDetectionResult.orientation === newRandomOrientation) {
       console.log("Face liveness check passed!");
+      setRandomOrientation(newRandomOrientation); // Update randomOrientation only when the check passes
       return true;
     } else {
       console.log("Face liveness check failed!");
@@ -301,17 +327,19 @@ const App = () => {
   return (
     <>
       <section className="VStack h-full text-center items-center pt-12 md:pt-0 w-10/12  lg:w-10/12 md:w-7/12 md:justify-center gap-5 min-h-screen">
-        <div className="w-full border-b-1 pb-5 dark:border-white border-black border-opacity-10 VStack items-center gap-3">
+        <div className="w-full  VStack items-center gap-3">
           <SignInForm isDeveloperPage={true} />
         </div>
+        <hr className=" lg:w-4/12 dark:border-black opacity-75 w-full border-gray-300 my-5" />
+
         <Button
           onClick={() => {
             onOpen();
             startCamera();
           }}
-          className="w-full bg-black hover:opacity-75"
+          className="lg:w-4/12 gap-5 w-full text-white bg-black hover:opacity-75"
         >
-          Sign In with FacePass
+          Sign In with<span className="font-medium">FacePass</span> 
         </Button>
       </section>
 
@@ -366,7 +394,7 @@ const App = () => {
               ) : (
                 <>
                   <Image
-                    src="images/dark-face-find.gif"
+                    src="images/light-face-find.gif"
                     className={`w-48  h-48  object-cover rounded-full transition duration-500 ${
                       timerExpired ? "opacity-10" : "opacity-100"
                     }`}
