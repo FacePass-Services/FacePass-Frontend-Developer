@@ -38,8 +38,8 @@ const FaceLogin = () => {
     });
     
   }, []);
-  const recognizeFace = async (faceDescriptors) => {
-    const descriptors = faceDescriptors.map((desc) => Array.from(desc)); // Convert Float32Array to a regular array
+  const recognizeFace = async (faceDescriptors:any) => {
+    const descriptors = faceDescriptors.map((desc:any) => Array.from(desc)); // Convert Float32Array to a regular array
     const response = await fetch(`${BACKEND_URL}/api/recognize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
