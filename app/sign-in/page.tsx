@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import * as faceapi from "face-api.js";
 import useToken from "@/hooks/useToken";
+import { BACKEND_URL } from "@/lib/config";
 
 const App = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -61,7 +62,6 @@ const App = () => {
   const sendFrameToFlask = async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
-    // Draw the current frame from the video onto a canvas
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     if (context) {
@@ -75,12 +75,12 @@ const App = () => {
 
           try {
             // Send frame to Flask backend
-            const response = await axios.post("http://localhost:5000/api1/recognize", formData, {
+            const response = await axios.post(`${BACKEND_URL}/api1/recognize`, formData, {
               headers: { "Content-Type": "multipart/form-data" },
             });
-            setToken(response);
-            console.log(response.data.token);
-            
+            console.log(response.data);
+            setToken(response.data)
+            window.location.href = "/"
           } catch (error) {
             console.error("Error sending frame to Flask API:", error);
           }
@@ -97,11 +97,10 @@ const App = () => {
       const intervalId = setInterval(async () => {
         detectFace();
 
-        // If face is detected, capture the frame and send it to Flask for recognition
         if (faceDetected) {
           await sendFrameToFlask();
         }
-      }, 2000); // Capture frame every 2 seconds
+      }, 3000); // Capture frame every 2 seconds
 
       return () => clearInterval(intervalId);
     }
