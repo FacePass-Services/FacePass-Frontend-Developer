@@ -188,32 +188,52 @@ export default function App() {
           if (distLeftEyeToNose > distRightEyeToNose + eyeThreshold) {
             orientation = "left";
             if (!recFaceLeft) {
-              await recordFace(orientation);
               setRecFaceLeft(true);
+              try {
+                await recordFace(orientation);
+              } catch {
+                setRecFaceLeft(false)
+              }
             }
           } else if (distRightEyeToNose > distLeftEyeToNose + eyeThreshold) {
             orientation = "right";
             if (!recFaceRight) {
-              await recordFace(orientation);
               setRecFaceRight(true);
+              try {
+                await recordFace(orientation);
+              } catch {
+                setRecFaceRight(false)
+              }
             }
           } else if (area < 2000 * areaThreshold && nosePosition.y < 230) {
             orientation = "up";
             if (!recFaceUp) {
-              await recordFace(orientation);
               setRecFaceUp(true);
+              try {
+                await recordFace(orientation);
+              } catch {
+                setRecFaceUp(false)
+              }
             }
           } else if (area > 3000 * areaThreshold || nosePosition.y > 300) {
             orientation = "down";
             if (!recFaceDown) {
-              await recordFace(orientation);
               setRecFaceDown(true);
+              try {
+                await recordFace(orientation);
+              } catch {
+                setRecFaceDown(false)
+              }
             }
           } else {
             orientation = "center";
             if (!recFaceCenter) {
-              await recordFace(orientation);
               setRecFaceCenter(true);
+              try {
+                await recordFace(orientation);
+              } catch {
+                setRecFaceCenter(false)
+              }
             }
           }
 
@@ -580,12 +600,12 @@ export default function App() {
             <div className="VStack gap-3 text-center justify-center items-center">
               {isGetStarted ? (
                 <>
-                  <p className="font-semibold text-3xl">
+                  <p className="font-semibold text-3xl text-white">
                     {faceDetected
                       ? "Move your head slowly to complete circle"
                       : "Reposition Your Face Within the Frame."}
                   </p>
-                  <p>Move your face within the frame.</p>
+                  <p className="text-white">Keep your face centered within the frame.</p>
                   <div className="VStack items-center">
                     {faceDetected && (
                       <div
@@ -668,10 +688,31 @@ export default function App() {
               )}
             </div>
             <div className="VStack gap-3 text-center justify-center items-center pt-20 text-white">
-              <p className="text-lg font-semibold">How to Set Up FacePass</p>
+              {!isGetStarted && (
+                <>
+                  {" "}
+                  <p className="text-lg font-semibold">
+                    How to Set Up FacePass
+                  </p>
+                </>
+              )}
               <p className="w-8/12">
-                First, Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Maxime fuga voluptatibus voluptate quibusdam architecto quam.
+                {!isGetStarted ? (
+                  <>
+                    {" "}
+                    You’ll be asked to turn your face up, down, left, and right.
+                    Follow the prompts and ensure your face stays within the
+                    frame as you move. This helps FacePass capture all necessary
+                    angles for reliable authentication.
+                  </>
+                ) : (
+                  <>
+                    To complete face registration, follow the on-screen
+                    instructions to move your face up, down, left, and right.
+                    This ensures that FacePass captures all necessary angles for
+                    accurate recognition.
+                  </>
+                )}
               </p>
             </div>
             <div className="VStack items-center gap-3 justify-center">
