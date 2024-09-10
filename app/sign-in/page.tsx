@@ -13,7 +13,7 @@ import axios from "axios";
 import * as faceapi from "face-api.js";
 import useToken from "@/hooks/useToken";
 import { BACKEND_URL } from "@/lib/config";
-import { count } from "console";
+
 
 const App = () => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -24,15 +24,12 @@ const App = () => {
   const [faceDetected, setFaceDetected] = useState(false);
   const [loadingModel, setLoadingModel] = useState(false);
   const [isFaceLiveness, setIsFaceLiveness] = useState(false);
-  const [randomOrientation, setRandomOrientation] = useState<string | null>(
-    null
-  );
-  const [findingFaceStartTime, setFindingFaceStartTime] = useState<
-    number | null
-  >(null);
+  const [randomOrientation, setRandomOrientation] = useState<string | null>(null);
+  const [findingFaceStartTime, setFindingFaceStartTime] = useState<number | null>(null);
   const [showTryAgain, setShowTryAgain] = useState(false);
   const [orientation, setOrientation] = useState("");
-
+  const [recFaceLeft, setRecFaceLeft] = useState(false);
+  const [recFaceRight, setRecFaceRight] = useState(false);
   const [findingFace, setFindingFace] = useState(false);
   const { setToken } = useToken();
 
@@ -63,19 +60,6 @@ const App = () => {
       detectFace();
     } catch (error) {
       console.error("Error accessing the camera:", error);
-    }
-  };
-
-  const detectFace = async () => {
-    if (videoRef.current) {
-      const detections = await faceapi
-        .detectSingleFace(videoRef.current)
-        .withFaceLandmarks();
-      if (detections) {
-        setFaceDetected(true);
-      } else {
-        setFaceDetected(false);
-      }
     }
   };
 
@@ -114,45 +98,153 @@ const App = () => {
     }
   };
 
+  const generateRandomOrientation = () => {
+    const orientations = ["left", "right"];
+    const randomIndex = Math.floor(Math.random() * orientations.length);
+    const newOrientation = orientations[randomIndex];
+    
+    console.log("Selected Orientation:", newOrientation);
+    setRandomOrientation(newOrientation);
+  };
+  
+  
+ 
+  
+  const isNotNull = (value: string | null): value is string => value !== null;
+
+  const faceLiveness = (detectedOrientation: string) => {
+    console.log("Detected Orientation:", detectedOrientation);
+    console.log("Expected Orientation:", randomOrientation);
+
+    if (isNotNull(randomOrientation) && detectedOrientation.toLowerCase() === randomOrientation.toLowerCase()) {
+      console.log("Liveness Check Passed:", detectedOrientation);
+      setIsFaceLiveness(true); 
+      return true;
+    } else {
+      console.log("Liveness Check Failed:", detectedOrientation);
+      return false;
+    }
+  };
+
+  
+
+  
+
+  const detectFace = async () => {
+    if (videoRef.current) {
+      const detections = await faceapi
+        .detectSingleFace(videoRef.current)
+        .withFaceLandmarks();
+  
+      if (detections) {
+        setFaceDetected(true);
+        const { landmarks } = detections;
+        const nose = landmarks.getNose();
+        const leftEye = landmarks.getLeftEye();
+        const rightEye = landmarks.getRightEye();
+  
+        if (nose && leftEye && rightEye) {
+          const nosePosition = { x: nose[3].x, y: nose[3].y };
+          const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
+          const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
+  
+          const distance = (
+            p1: { x: number; y: number },
+            p2: { x: number; y: number }
+          ) => Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+  
+          const distLeftEyeToNose = distance(leftEyePosition, nosePosition);
+          const distRightEyeToNose = distance(rightEyePosition, nosePosition);
+          const distLeftEyeToRightEye = distance(
+            leftEyePosition,
+            rightEyePosition
+          );
+  
+          const triangleArea = (a: number, b: number, c: number) => {
+            const s = (a + b + c) / 2;
+            return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+          };
+  
+          const area = triangleArea(
+            distLeftEyeToNose,
+            distRightEyeToNose,
+            distLeftEyeToRightEye
+          );
+  
+          let detectedOrientation: string | undefined;
+  
+          const eyeThreshold = 0.15 * distLeftEyeToRightEye;
+          const areaThreshold = 0.2 * distLeftEyeToRightEye;
+  
+          if (distLeftEyeToNose > distRightEyeToNose + eyeThreshold) {
+            detectedOrientation = "left";
+            if (!recFaceLeft) {
+              setRecFaceLeft(true);
+            } else {
+              setRecFaceLeft(false);
+            }
+          } else if (distRightEyeToNose > distLeftEyeToNose + eyeThreshold) {
+            detectedOrientation = "right";
+            if (!recFaceRight) {
+              setRecFaceRight(true);
+            } else {
+              setRecFaceRight(false);
+            }
+          }
+  
+          // Call the faceLiveness function here to compare detected orientation with random orientation
+          if (detectedOrientation) {
+            const result = faceLiveness(detectedOrientation);
+            setIsFaceLiveness(faceLiveness(detectedOrientation))
+        
+          
+          }
+        }
+      }
+    }
+  };
+  
+  
+  useEffect(() => {
+    if (randomOrientation === null) {
+      generateRandomOrientation();
+    }
+  }, [randomOrientation]);
+  
+  
+
   useEffect(() => {
     let intervalId: any = null;
     let count = 0;
-    let flag = true;
-  
+
     if (findingFace && !faceDetected && findingFaceStartTime === null) {
       setFindingFaceStartTime(Date.now());
     }
   
-    if (findingFace && !faceDetected) {
+
+    if (findingFace && !faceDetected && findingFaceStartTime === null) {
       intervalId = setInterval(() => {
         count++;
         console.log(count);
-  
+
         if (count >= 7) {
           setShowTryAgain(true);
           stopCamera();
-          clearInterval(intervalId); 
+          clearInterval(intervalId);
         }
       }, 1000);
     }
-  
-    if (faceDetected) {
-      clearInterval(intervalId); 
+
+    if (faceDetected && !findingFace) {
+      clearInterval(intervalId);
       count = 0;
-      flag = false;
-      setShowTryAgain(false); 
+      setShowTryAgain(false);
     }
 
     return () => clearInterval(intervalId);
   }, [faceDetected, findingFaceStartTime, findingFace]);
-  
 
-  useEffect(() => {
-    if (findingFace && faceDetected && !randomOrientation) {
-      const randomOrientation = Math.random() < 0.5 ? "left" : "right";
-      setRandomOrientation(randomOrientation);
-    }
-  }, [findingFace, faceDetected, randomOrientation]);
+
   const stopCamera = () => {
     if (videoStream) {
       videoStream.getTracks().forEach((track) => track.stop());
@@ -182,14 +274,16 @@ const App = () => {
 
         detectFace();
 
-        if (faceDetected) {
-          await sendFrameToFlask();
+
+        if (isFaceLiveness) {
+          sendFrameToFlask();
         }
+        
       }, 3000); // Capture frame every 2 seconds
 
       return () => clearInterval(intervalId);
     }
-  }, [videoStream, faceDetected]);
+  }, [isFaceLiveness,videoStream, faceDetected]);
 
   return (
     <>
@@ -312,15 +406,16 @@ const App = () => {
               )}
               {findingFace && faceDetected && (
                 <>
-                  {" "}
                   <p>
-                    Turn{" "}
-                    {randomOrientation &&
-                      randomOrientation.charAt(0).toUpperCase() +
-                        randomOrientation.slice(1)}
+                    {orientation === "Correct"
+                      ? "CORRECT"
+                      : `TURN ${
+                          randomOrientation?.charAt(0).toUpperCase() +
+                          randomOrientation?.slice(1).toUpperCase()
+                        }`}
                   </p>
                 </>
-              )}{" "}
+              )}
               {showTryAgain && <p>Try again</p>}
             </ModalBody>
             <ModalFooter></ModalFooter>
