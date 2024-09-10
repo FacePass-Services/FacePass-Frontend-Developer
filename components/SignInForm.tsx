@@ -48,7 +48,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
       const response = await axios.post(endpoint, { email });
       const updatedToken = response.data; // assuming the API returns the updated token
       setToken(updatedToken);
-      console.log(`Role upgraded to ${plan}`);
+      // console.log(`Role upgraded to ${plan}`);
       setTimeout(() => {
         window.location.reload();
       }, 1500);
@@ -81,7 +81,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
         `${BACKEND_URL}/auth/send_passcode`,
         { email }
       );
-      console.log("Passcode sent!", response.data);
+      console.log("Passcode sent!");
     } catch (error) {
       console.error("Passcode error:", error);
     }
@@ -96,7 +96,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      console.log("Login response:", response.data);
+      console.log("Login successful");
 
       return response.data;
     } catch (error) {
@@ -144,7 +144,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isDeveloperPage = false }) => {
     } else if (emailEntered && passcode !== "") {
       try {
         const response = await loginUser({ email, passcode });
-        console.log("Response to setToken:", response);
+        console.log("Response to setToken");
         setToken(response);
         setSignedIn(true);
       } catch (error) {

@@ -36,7 +36,7 @@ export default function General() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("User deleted successfully!", data);
+        console.log("User deleted successfully!");
 
         logout();
 

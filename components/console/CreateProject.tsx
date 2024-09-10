@@ -20,9 +20,6 @@ const CreateProject: React.FC = () => {
 
     try {
       // Log the title, description, and userId for debugging
-      console.log("Title:", title);
-      console.log("Description:", description);
-      console.log("User ID:", userId);
       
       // Make a POST request to create a new project
       const response = await axios.post(`${BACKEND_URL}/project/create`, {

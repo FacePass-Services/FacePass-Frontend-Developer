@@ -27,7 +27,9 @@ const App = () => {
   const [randomOrientation, setRandomOrientation] = useState<string | null>(
     null
   );
-  const [findingFaceStartTime, setFindingFaceStartTime] = useState<number | null>(null);
+  const [findingFaceStartTime, setFindingFaceStartTime] = useState<
+    number | null
+  >(null);
   const [showTryAgain, setShowTryAgain] = useState(false);
   const [orientation, setOrientation] = useState("");
 
@@ -101,7 +103,7 @@ const App = () => {
                 headers: { "Content-Type": "multipart/form-data" },
               }
             );
-            console.log(response.data);
+
             setToken(response.data);
             window.location.href = "/";
           } catch (error) {
@@ -111,42 +113,38 @@ const App = () => {
       });
     }
   };
+
   useEffect(() => {
+    let intervalId: any = null;
+    let count = 0;
+    let flag = true;
+  
     if (findingFace && !faceDetected && findingFaceStartTime === null) {
       setFindingFaceStartTime(Date.now());
     }
   
-    if (findingFace && !faceDetected && findingFaceStartTime !== null) {
-      // const elapsedTime = Date.now() - findingFaceStartTime;
-      // console.log(elapsedTime);
-      // console.log(`Elapsed time: ${elapsedTime/1000} seconds`); 
-      let count = 0; // Initialize count
-      let intervalId: any = null
+    if (findingFace && !faceDetected) {
       intervalId = setInterval(() => {
         count++;
         console.log(count);
-
+  
         if (count >= 7) {
-          clearInterval(intervalId);
-          setShowTryAgain(true); 
-          stopCamera()
-        }
-
-        while (faceDetected ) {
-          // setFindingFaceStartTime(null);
-          setShowTryAgain(false);
-          count = 0;
+          setShowTryAgain(true);
+          stopCamera();
+          clearInterval(intervalId); 
         }
       }, 1000);
-      // }
-      // if (elapsedTime >= 5) {
-      //   setShowTryAgain(true);
-      // }
     }
   
+    if (faceDetected) {
+      clearInterval(intervalId); 
+      count = 0;
+      flag = false;
+      setShowTryAgain(false); 
+    }
 
-  
-  }, [findingFace, faceDetected, findingFaceStartTime]);
+    return () => clearInterval(intervalId);
+  }, [faceDetected, findingFaceStartTime, findingFace]);
   
 
   useEffect(() => {
@@ -184,9 +182,9 @@ const App = () => {
 
         detectFace();
 
-        // if (faceDetected) {
-        //   await sendFrameToFlask();
-        // }
+        if (faceDetected) {
+          await sendFrameToFlask();
+        }
       }, 3000); // Capture frame every 2 seconds
 
       return () => clearInterval(intervalId);
@@ -269,40 +267,37 @@ const App = () => {
                   />
                 </>
               )} */}
-
-{faceDetected ? (
-  <>
-    <Image
-      src={
-        isFaceLiveness
-          ? "images/done-animate.gif"
-          : "images/face-detected.gif"
-      }
-      className={`w-32  h-32  object-cover rounded-full transition duration-500 ${
-        faceDetected ? "opacity-100" : "opacity-0"
-      }`}
-      alt=""
-    />
-  </>
-) : (
-  !showTryAgain ? (
-    <>
-      <Image
-        src="images/light-face-find.gif"
-        className={`w-48  h-48  object-cover rounded-full transition duration-500 `}
-        alt=""
-      />
-    </>
-  ) : (
-    <>
-      <Image
-        src="images/fail.png"
-        className={`w-48  h-48  object-cover rounded-full transition duration-500 `}
-        alt=""
-      />
-    </>
-  )
-)}
+              {faceDetected ? (
+                <>
+                  <Image
+                    src={
+                      isFaceLiveness
+                        ? "images/done-animate.gif"
+                        : "images/face-detected.gif"
+                    }
+                    className={`w-32  h-32  object-cover rounded-full transition duration-500 ${
+                      faceDetected ? "opacity-100" : "opacity-0"
+                    }`}
+                    alt=""
+                  />
+                </>
+              ) : !showTryAgain ? (
+                <>
+                  <Image
+                    src="images/light-face-find.gif"
+                    className={`w-48  h-48  object-cover rounded-full transition duration-500 `}
+                    alt=""
+                  />
+                </>
+              ) : (
+                <>
+                  <Image
+                    src="images/fail.png"
+                    className={`w-48  h-48  object-cover rounded-full transition duration-500 `}
+                    alt=""
+                  />
+                </>
+              )}
               {loadingModel && !findingFace && (
                 <p>Loading face detection model</p>
               )}
@@ -326,7 +321,7 @@ const App = () => {
                   </p>
                 </>
               )}{" "}
-              {showTryAgain && (<p>Try again</p>)}
+              {showTryAgain && <p>Try again</p>}
             </ModalBody>
             <ModalFooter></ModalFooter>
           </>

@@ -25,7 +25,6 @@ const Projects = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        console.log(userId);
         const response = await axios.get(
           `${BACKEND_URL}/project/get_dev_project?created_user_id=${userId}`
         );

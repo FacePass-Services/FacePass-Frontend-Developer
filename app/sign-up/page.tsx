@@ -149,10 +149,6 @@ export default function App() {
           const leftEyePosition = { x: leftEye[0].x, y: leftEye[1].y };
           const rightEyePosition = { x: rightEye[3].x, y: rightEye[1].y };
 
-          // console.log("Nose Position:", nosePosition);
-          // console.log('Left Eye Position:', leftEyePosition);
-          // console.log('Right Eye Position:', rightEyePosition);
-
           const distance = (p1: any, p2: any) =>
             Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
 
@@ -162,10 +158,6 @@ export default function App() {
             leftEyePosition,
             rightEyePosition
           );
-
-          // console.log('Distance from Left Eye to Nose:', distLeftEyeToNose);
-          // console.log('Distance from Right Eye to Nose:', distRightEyeToNose);
-          // console.log('Distance from Left Eye to Right Eye:', distLeftEyeToRightEye);
 
           const triangleArea = (a: any, b: any, c: any) => {
             const s = (a + b + c) / 2;
@@ -295,7 +287,7 @@ export default function App() {
               } else {
                 console.error("Error registering face:", response.data.error);
               }
-            } catch (error) {
+            } catch (error:any) {
               console.error(
                 "Error registering face:",
                 error.response ? error.response.data : error.message
@@ -335,14 +327,14 @@ export default function App() {
     setFaceDetected(false);
   };
   const signUp = async () => {
-    console.log("Sending registration data:", {
-      first_name: firstName,
-      last_name: lastName,
-      date_of_birth: formattedBirthDate,
-      gender,
-      phone_number: phoneNumber,
-      email,
-    });
+    // console.log("Sending registration data:", {
+    //   first_name: firstName,
+    //   last_name: lastName,
+    //   date_of_birth: formattedBirthDate,
+    //   gender,
+    //   phone_number: phoneNumber,
+    //   email,
+    // });
 
     try {
       const response = await axios.post(`${BACKEND_URL}/auth/register`, {
@@ -354,18 +346,25 @@ export default function App() {
         email,
       });
 
-      console.log("Registration successful!", response.data);
+      // console.log("Registration successful!", response.data);
+      console.log("Registration successful!");
 
       // Extract userId from the response
       const userId = response.data.user.id;
-      console.log("Received userId:", userId);
+      // console.log("Received userId:", userId);
+      console.log("Received userId:", );
 
       if (userId) {
         localStorage.setItem("userId", userId);
         console.log(
           "userId saved to localStorage:",
-          localStorage.getItem("userId")
         );
+
+        // console.log(
+        //   "userId saved to localStorage:",
+        //   localStorage.getItem("userId")
+        // );
+        
 
         // Optionally, navigate or trigger other actions
         // onOpen();
@@ -377,7 +376,7 @@ export default function App() {
       } else {
         console.error("userId is undefined in the response data.");
       }
-    } catch (error) {
+    } catch (error:any) {
       console.error(
         "Sign-up error:",
         error.response ? error.response.data : error.message

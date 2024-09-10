@@ -65,7 +65,7 @@ const [isGetStarted, setIsGetStarted] = useState(false);
         const detections = await faceapi.detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions());
         if (detections) {
           setIsButtonDisabled(false); // Enable the button when a face is detected
-          console.log('Face detected:', detections);
+
         } else {
           setIsButtonDisabled(true); // Disable the button when no face is detected
           console.log('No face detected');
