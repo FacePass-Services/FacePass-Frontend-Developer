@@ -364,7 +364,7 @@ export default function Home({ params }: any) {
           {selectedItem && (
             <div>
               {/* Render content based on the selected item */}
-              {selectedItem === "dashboard" && <Overview />}
+              {selectedItem === "dashboard" && <Overview projectID={project_id} />}
               {selectedItem === "products" && <p>Products Content</p>}
               {selectedItem === "customers" && (
               <UserList project_id={project_id} users={users} />
