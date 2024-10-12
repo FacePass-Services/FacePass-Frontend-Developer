@@ -228,7 +228,7 @@ export default function Overview({ projectID }: any) {
           <div className="VStack">
             <p className="text-lg font-semibold">{loginTotal}</p>{" "}
             {/* Display the total login count */}
-            <p className="opacity-75 text-sm">+2.3% than last month</p>
+            <p className="opacity-75 text-sm">Overall</p>
           </div>
         </div>
         <div className="bg-white dark:bg-black gap-3 VStack shadow-sm rounded-lg p-3">

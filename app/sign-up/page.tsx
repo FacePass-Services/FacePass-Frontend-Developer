@@ -452,7 +452,7 @@ export default function App() {
       setTimeout(async () => {
         // Navigate to /sign-in
         window.location.href = "/sign-in";
-      }, 3000);
+      }, 2000);
       // Optionally, you can also trigger sign-up here if needed
     }
   };

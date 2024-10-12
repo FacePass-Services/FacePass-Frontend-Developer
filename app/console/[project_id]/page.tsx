@@ -21,8 +21,8 @@ import { IoTrashBinSharp } from "react-icons/io5";
 import ProjectSettings from "@/components/project/pages/Settings";
 import Overview from "@/components/project/pages/Overview";
 import UserList from "@/components/project/pages/Userlist"
-
-
+import { IoMdMail } from "react-icons/io";
+import EmailForwarder from "@/components/project/pages/EmailForwarder";
 
 // dashboard
 import {
@@ -287,6 +287,21 @@ export default function Home({ params }: any) {
                   </div>
                   <p></p>
                 </li>
+                <li
+                  className={`HStack justify-between cursor-pointer rounded-lg pl-6 pr-6 pb-3 pt-3 ${
+                    selectedItem === "email"
+                      ? "bg-white dark:bg-black font-semibold  shadow-sm"
+                      : ""
+                  }`}
+                  onClick={() => handleItemClick("email")}
+                >
+                  <div className="HStack gap-2 items-center">
+                  <IoMdMail className="text-xl" />
+
+                    <p>Email</p>
+                  </div>
+                  <p></p>
+                </li>
                
                
               </ul>
@@ -350,6 +365,7 @@ export default function Home({ params }: any) {
                 onClick={() => handleItemClick("setting")}
               >
                 <div className="HStack gap-2 items-center">
+
                   <IoMdSettings className="w-5 h-5 aspect-square" />
                   <p>Settings</p>
                 </div>
@@ -369,7 +385,9 @@ export default function Home({ params }: any) {
               {selectedItem === "customers" && (
               <UserList project_id={project_id} users={users} />
               )}
+              {selectedItem === "email" && <EmailForwarder projectID={project_id} />}
               {selectedItem === "orders" && <p>Orders Content</p>}
+
               {selectedItem === "secret" && <p>Secret Content</p>}
               {selectedItem === "a" && <p>a Content</p>}
               {selectedItem === "b" && <p>b Content</p>}

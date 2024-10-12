@@ -204,7 +204,7 @@ const App = () => {
     }
   };
   
-  
+  // Random Faceliveness
   useEffect(() => {
     if (randomOrientation === null) {
       generateRandomOrientation();
@@ -212,7 +212,7 @@ const App = () => {
   }, [randomOrientation]);
   
   
-
+  // Face Detection Timer
   useEffect(() => {
     let intervalId: any = null;
     let count = 0;
@@ -251,6 +251,7 @@ const App = () => {
       setVideoStream(null);
     }
   };
+  //Canecl Button
   const resetState = () => {
     setCameraOpen(false);
     setVideoStream(null);
@@ -262,6 +263,8 @@ const App = () => {
     stopCamera();
     setShowTryAgain(false);
   };
+
+  //Sign In Func
   useEffect(() => {
     if (videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
