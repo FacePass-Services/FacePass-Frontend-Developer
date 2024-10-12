@@ -4,9 +4,9 @@ import { IoFilterOutline } from "react-icons/io5";
 import axios from "axios";
 import { BACKEND_URL } from "@/lib/config";
 import { IoCheckmark } from "react-icons/io5";
-import { Button, Input, TimeInput, DatePicker } from "@nextui-org/react";
+import { Button, Input, TimeInput, DatePicker, user } from "@nextui-org/react";
 import { Select, SelectItem, Avatar } from "@nextui-org/react";
-import {Textarea} from "@nextui-org/input";
+import { Textarea } from "@nextui-org/input";
 
 import {
   Dropdown,
@@ -50,6 +50,50 @@ export default function Overview({ projectID }: any) {
   const [loginByMonth, setLoginByMonth] = useState<any>({});
   const [loginByYear, setLoginByYear] = useState<any>({});
   const [selectedFilter, setSelectedFilter] = useState<string>("Year"); // New state for filter
+  const [body, setBody] = useState<string>();
+  const [subject, setSubject] = useState<string>();
+  const [uid, setUID] = useState<any>();
+  const [users, setUsers] = useState<any>();
+
+  useEffect(() => {
+    if (!projectID) return;
+
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${BACKEND_URL}/project/get_user_list?project_id=${projectID}`
+        );
+        if (res.status === 200) {
+          setUsers(res.data.folder.users);
+        } else {
+          console.error(`Error: Received status code ${res.status}`);
+        }
+      } catch (e: any) {
+        console.error(
+          "Fetching Error:",
+          e.response ? e.response.data : e.message
+        );
+      }
+    };
+    fetchData();
+  }, [projectID]);
+
+  const emailSending = async (subject: string, user_id: number, body: string) => {
+    try {
+      const res = await axios.post(`${BACKEND_URL}/pemail/forward_email`, {
+        user_id,  
+        subject,
+        body,
+      });
+  
+      console.log('Email sent:', res.data);
+      window.location.reload();
+      return res.data;
+    } catch (error: any) {
+        return  error ;
+      }
+  };
+  
 
   return (
     <section className="w-full h-full gap-5 items-center VStack">
@@ -67,17 +111,23 @@ export default function Overview({ projectID }: any) {
                   </div>
                   <div className="w-11/12">
                     {" "}
-                    {/* <input placeholder="email" className="w-full" /> */}
                     <Select
                       placeholder="email"
                       className="w-full"
+                      onChange={(e: any) => {
+                        setUID(e.target.value);
+                      }}
+                      value={uid}
                     >
-                      <SelectItem key={"hi"}>1</SelectItem>
-                      <SelectItem key={"hi"}>2</SelectItem>
-
-                      <SelectItem key={"hi"}>3</SelectItem>
-                      <SelectItem key={"hi"}>4</SelectItem>
-
+                      {users &&
+                        users.map((user: any) => (
+                          <SelectItem
+                            key={user.id}
+                            value={user.email} 
+                          >
+                            {user.email} 
+                          </SelectItem>
+                        ))}
                     </Select>
                   </div>
                 </div>
@@ -89,23 +139,33 @@ export default function Overview({ projectID }: any) {
                   </div>
                   <div className="w-11/12">
                     {" "}
-                    <Input placeholder="subject" className="w-full" />
+                    <Input
+                      placeholder="subject"
+                      className="w-full"
+                      onChange={(e) => setSubject(e.target.value)}
+                      value={subject}
+                    />
                   </div>
                 </div>
               </li>
               <li className="VStack w-full gap-3 justify-between cursor-pointer pl-5 pr-5 pb-3 pt-3">
                 <div className="VStack w-full gap-5 items-start">
-                <p>Body</p>
+                  <p>Body</p>
 
-                <Textarea
-      // label="Body"
-      placeholder="Enter your body"
-      className="w-full"
-    />
+                  <Textarea
+                    // label="Body"
+                    placeholder="Enter your body"
+                    className="w-full"
+                    onChange={(e) => setBody(e.target.value)}
+                    value={body}
+                  />
                 </div>
                 <div className="HStack justify-end gap-3 mb-2">
                   {" "}
-                  <Button className="w-fit min-w-[150px] bg-primary-dark text-white">
+                  <Button
+                    className="w-fit min-w-[150px] bg-primary-dark text-white"
+                    onClick={() => emailSending(subject, parseInt(uid), body)}
+                  >
                     Send
                   </Button>
                 </div>

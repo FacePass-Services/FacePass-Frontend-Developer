@@ -107,9 +107,6 @@ const App = () => {
     setRandomOrientation(newOrientation);
   };
   
-  
- 
-  
   const isNotNull = (value: string | null): value is string => value !== null;
 
   const faceLiveness = (detectedOrientation: string) => {
@@ -125,10 +122,6 @@ const App = () => {
       return false;
     }
   };
-
-  
-
-  
 
   const detectFace = async () => {
     if (videoRef.current) {
