@@ -78,22 +78,25 @@ export default function Overview({ projectID }: any) {
     fetchData();
   }, [projectID]);
 
-  const emailSending = async (subject: string, user_id: number, body: string) => {
+  const emailSending = async (
+    subject: string,
+    user_id: number,
+    body: string
+  ) => {
     try {
       const res = await axios.post(`${BACKEND_URL}/pemail/forward_email`, {
-        user_id,  
+        user_id,
         subject,
         body,
       });
-  
-      console.log('Email sent:', res.data);
+
+      console.log("Email sent:", res.data);
       window.location.reload();
       return res.data;
     } catch (error: any) {
-        return  error ;
-      }
+      return error;
+    }
   };
-  
 
   return (
     <section className="w-full h-full gap-5 items-center VStack">
@@ -121,11 +124,8 @@ export default function Overview({ projectID }: any) {
                     >
                       {users &&
                         users.map((user: any) => (
-                          <SelectItem
-                            key={user.id}
-                            value={user.email} 
-                          >
-                            {user.email} 
+                          <SelectItem key={user.id} value={user.email}>
+                            {user.email}
                           </SelectItem>
                         ))}
                     </Select>
@@ -164,7 +164,9 @@ export default function Overview({ projectID }: any) {
                   {" "}
                   <Button
                     className="w-fit min-w-[150px] bg-primary-dark text-white"
-                    onClick={() => emailSending(subject, parseInt(uid), body)}
+                    onPress={() =>
+emailSending(subject ?? "", parseInt((uid ?? "0") as string), body ?? "")
+                    }
                   >
                     Send
                   </Button>

@@ -58,20 +58,6 @@ import useToken from "@/hooks/useToken";
 import { env } from "process";
 import { BACKEND_URL } from "@/lib/config";
 
-
-
-const columns = [
-  { name: "First Name", uid: "first_name" },
-  { name: "Last Name", uid: "last_name" },
-  { name: "Email", uid: "email" },
-  { name: "Gender", uid: "gender" },
-  { name: "Date of Birth", uid: "date_of_birth" },
-  { name: "Phone Number", uid: "phone_number" },
-
-  { name: "Actions", uid: "actions" },
-];
-
-
 export default function Home({ params }: any) {
   const router = useRouter();
   const [selectedItem, setSelectedItem] = useState("customers");
@@ -182,62 +168,7 @@ export default function Home({ params }: any) {
           className="VStack min-h-[90vh] w-2/12 h-full justify-between max-w-[300px] pl-2 pr-2"
         >
           <div className="VStack w-full">
-            {/* <Dropdown>
-              <DropdownTrigger>
-                <div className="HStack cursor-pointer justify-between items-center h-20">
-                  <div className="HStack gap-3 items-center">
-                    <div className="HStack gap-1">
-                      <MdWork className="text-xl" />
-                      <p className="font-semibold text-[16px]">Project 1</p>
-                    </div>
-                    <BsChevronExpand className="font-bold text-md" />
-                  </div>
-                </div>
-              </DropdownTrigger>
-              <DropdownMenu
-                variant="faded"
-                aria-label="Dropdown menu with description"
-              >
-                <DropdownSection title="Projects" showDivider>
-                  <DropdownItem
-                    key="new"
-                    shortcut="⌘N"
-                    description="Create a new file"
-                    // startContent={<AddNoteIcon className={iconClasses} />}
-                  >
-                    New file
-                  </DropdownItem>
-                  <DropdownItem
-                    key="copy"
-                    shortcut="⌘C"
-                    description="Copy the file link"
-                    // startContent={<CopyDocumentIcon className={iconClasses} />}
-                  >
-                    Copy link
-                  </DropdownItem>
-                  <DropdownItem
-                    key="edit"
-                    shortcut="⌘⇧E"
-                    description="Allows you to edit the file"
-                    // startContent={<EditDocumentIcon className={iconClasses} />}
-                  >
-                    Edit file
-                  </DropdownItem>
-                </DropdownSection>
-                <DropdownSection title="Quick actions">
-                  <DropdownItem
-                    key="delete"
-                    className="text-danger"
-                    color="danger"
-                    shortcut="⌘⇧D"
-                    description="Permanently delete the file"
-                    // startContent={<DeleteDocumentIcon className={cn(iconClasses, "text-danger")} />}
-                  >
-                    Setting
-                  </DropdownItem>
-                </DropdownSection>
-              </DropdownMenu>
-            </Dropdown> */}
+           
 
             <div className="w-full h-1 mb-3 "></div>
             <section className="VStack gap-7 text-[12px]">

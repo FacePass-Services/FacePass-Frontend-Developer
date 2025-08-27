@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import * as faceapi from "face-api.js";
 import {
@@ -86,52 +86,15 @@ export default function App() {
       console.error("Error accessing the camera:", error);
     }
   };
-  const stopCamera = () => {
+
+  const stopCamera = useCallback(() => {
     if (videoStream) {
       videoStream.getTracks().forEach((track) => track.stop());
       setVideoStream(null);
     }
-  };
-
-  useEffect(() => {
-    if (videoRef.current && videoStream) {
-      videoRef.current.srcObject = videoStream;
-      videoRef.current.play();
-
-      // Check face every 1 second
-      const intervalId = setInterval(() => {
-        if (
-          !recFaceCenter &&
-          !recFaceDown &&
-          !recFaceLeft &&
-          !recFaceRight &&
-          !recFaceUp
-        ) {
-          detectFace();
-        } else {
-          clearInterval(intervalId);
-        }
-      }, 1000);
-
-      // return () => clearInterval(intervalId);
-    }
   }, [videoStream]);
 
-  useEffect(() => {
-    if (
-      recFaceCenter &&
-      recFaceDown &&
-      recFaceLeft &&
-      recFaceRight &&
-      recFaceUp
-    ) {
-      console.log("All face orientations recorded, stopping camera.");
-      stopCamera();
-    } else {
-    }
-  }, [recFaceCenter, recFaceDown, recFaceLeft, recFaceRight, recFaceUp]);
-
-  const detectFace = async () => {
+  const detectFace = useCallback(async () => {
     if (videoRef.current) {
       const detections = await faceapi
         .detectSingleFace(videoRef.current)
@@ -170,8 +133,6 @@ export default function App() {
             distLeftEyeToRightEye
           );
 
-          // console.log("Triangle Area:", area);
-
           let orientation;
 
           const eyeThreshold = 0.15 * distLeftEyeToRightEye;
@@ -184,7 +145,7 @@ export default function App() {
               try {
                 await recordFace(orientation);
               } catch {
-                setRecFaceLeft(false)
+                setRecFaceLeft(false);
               }
             }
           } else if (distRightEyeToNose > distLeftEyeToNose + eyeThreshold) {
@@ -194,7 +155,7 @@ export default function App() {
               try {
                 await recordFace(orientation);
               } catch {
-                setRecFaceRight(false)
+                setRecFaceRight(false);
               }
             }
           } else if (area < 2000 * areaThreshold && nosePosition.y < 230) {
@@ -204,7 +165,7 @@ export default function App() {
               try {
                 await recordFace(orientation);
               } catch {
-                setRecFaceUp(false)
+                setRecFaceUp(false);
               }
             }
           } else if (area > 3000 * areaThreshold || nosePosition.y > 300) {
@@ -214,7 +175,7 @@ export default function App() {
               try {
                 await recordFace(orientation);
               } catch {
-                setRecFaceDown(false)
+                setRecFaceDown(false);
               }
             }
           } else {
@@ -224,32 +185,68 @@ export default function App() {
               try {
                 await recordFace(orientation);
               } catch {
-                setRecFaceCenter(false)
+                setRecFaceCenter(false);
               }
             }
           }
-
-          // console.log("Orientation Detected:", orientation);
-
-          // if (
-          //   recFaceCenter &&
-          //   recFaceDown &&
-          //   recFaceLeft &&
-          //   recFaceRight &&
-          //   recFaceUp
-          // ) {
-          //   console.log("All face orientations recorded, stopping camera.");
-          //   stopCamera();
-          // }
-        } else {
-          console.error("Landmarks data is missing");
         }
       } else {
         setFaceDetected(false);
         console.log("No face detected");
       }
     }
-  };
+  }, [recFaceCenter, recFaceDown, recFaceLeft, recFaceRight, recFaceUp]);
+  useEffect(() => {
+    if (videoRef.current && videoStream) {
+      videoRef.current.srcObject = videoStream;
+      videoRef.current.play();
+
+      const intervalId = setInterval(() => {
+        if (
+          !recFaceCenter &&
+          !recFaceDown &&
+          !recFaceLeft &&
+          !recFaceRight &&
+          !recFaceUp
+        ) {
+          detectFace();
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [
+    videoStream,
+    detectFace,
+    recFaceCenter,
+    recFaceDown,
+    recFaceLeft,
+    recFaceRight,
+    recFaceUp,
+  ]);
+
+  useEffect(() => {
+    if (
+      recFaceCenter &&
+      recFaceDown &&
+      recFaceLeft &&
+      recFaceRight &&
+      recFaceUp
+    ) {
+      console.log("All face orientations recorded, stopping camera.");
+      stopCamera();
+    }
+  }, [
+    recFaceCenter,
+    recFaceDown,
+    recFaceLeft,
+    recFaceRight,
+    recFaceUp,
+    stopCamera,
+  ]);
+
   const recordFace = async (orientation: string) => {
     const userId = localStorage.getItem("userId");
     if (videoRef.current) {
@@ -287,7 +284,7 @@ export default function App() {
               } else {
                 console.error("Error registering face:", response.data.error);
               }
-            } catch (error:any) {
+            } catch (error: any) {
               console.error(
                 "Error registering face:",
                 error.response ? error.response.data : error.message
@@ -352,19 +349,16 @@ export default function App() {
       // Extract userId from the response
       const userId = response.data.user.id;
       // console.log("Received userId:", userId);
-      console.log("Received userId:", );
+      console.log("Received userId:");
 
       if (userId) {
         localStorage.setItem("userId", userId);
-        console.log(
-          "userId saved to localStorage:",
-        );
+        console.log("userId saved to localStorage:");
 
         // console.log(
         //   "userId saved to localStorage:",
         //   localStorage.getItem("userId")
         // );
-        
 
         // Optionally, navigate or trigger other actions
         // onOpen();
@@ -376,7 +370,7 @@ export default function App() {
       } else {
         console.error("userId is undefined in the response data.");
       }
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(
         "Sign-up error:",
         error.response ? error.response.data : error.message
@@ -604,7 +598,9 @@ export default function App() {
                       ? "Move your head slowly to complete circle"
                       : "Reposition Your Face Within the Frame."}
                   </p>
-                  <p className="text-white">Keep your face centered within the frame.</p>
+                  <p className="text-white">
+                    Keep your face centered within the frame.
+                  </p>
                   <div className="VStack items-center">
                     {faceDetected && (
                       <div
