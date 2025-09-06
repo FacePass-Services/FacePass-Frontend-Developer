@@ -4,4 +4,4 @@ services:
         image: ${DOCKER_HUB_USERNAME}/facepass-frontend-dev:latest
         restart: always
         ports:
-            - "3000:3000"
+            - "3000:3001"
